@@ -1,4 +1,4 @@
-"""Local Japanese -> Raphael voice pipeline.
+﻿"""Local Japanese -> Raphael voice pipeline.
 
 Pipeline:
     Great Sage text -> Piper Plus Japanese TTS -> Applio/RVC Raphael model.
@@ -51,8 +51,8 @@ class RaphaelVoiceOutput(VoiceOutput):
 
     def _validate_configuration(self) -> None:
         required = {
-            "RAPHAEL_PIPER_PYTHON": settings.RAPHAEL_PIPER_PYTHON,
-            "RAPHAEL_PIPER_MODEL": settings.RAPHAEL_PIPER_MODEL,
+            "RAPHAEL_PIPER_PYTHON": settings.RAPHAEL_TTS_PYTHON,
+            "RAPHAEL_PIPER_MODEL": settings.RAPHAEL_TTS_VOICE,
             "RAPHAEL_APPLIO_DIR": settings.RAPHAEL_APPLIO_DIR,
             "RAPHAEL_APPLIO_PYTHON": settings.RAPHAEL_APPLIO_PYTHON,
             "RAPHAEL_MODEL_PATH": settings.RAPHAEL_MODEL_PATH,
@@ -68,9 +68,9 @@ class RaphaelVoiceOutput(VoiceOutput):
                 "Raphael voice is not configured. Missing: " + ", ".join(missing)
             )
 
-        if not os.path.isfile(settings.RAPHAEL_PIPER_PYTHON):
+        if not os.path.isfile(settings.RAPHAEL_TTS_PYTHON):
             raise VoiceError(
-                f"Raphael Piper Python was not found: {settings.RAPHAEL_PIPER_PYTHON}"
+                f"Raphael Piper Python was not found: {settings.RAPHAEL_TTS_PYTHON}"
             )
         if not os.path.isfile(settings.RAPHAEL_APPLIO_PYTHON):
             raise VoiceError(
@@ -116,25 +116,22 @@ class RaphaelVoiceOutput(VoiceOutput):
                 + (f"\n{detail}" if detail else "")
             )
 
-    def _synthesize_piper(self, text: str, output_path: str) -> None:
+    def _synthesize_nanami(self, text: str, output_path: str) -> None:
         command = [
-            settings.RAPHAEL_PIPER_PYTHON,
+            settings.RAPHAEL_TTS_PYTHON,
             "-m",
-            "piper_plus",
-            "--model",
-            settings.RAPHAEL_PIPER_MODEL,
+            "edge_tts",
+            "--voice",
+            settings.RAPHAEL_TTS_VOICE,
             "--text",
             text,
-            "--output_file",
+            "--rate=-5%",
+            "--pitch=+0Hz",
+            "--write-media",
             output_path,
         ]
-        if settings.RAPHAEL_PIPER_SPEAKER is not None:
-            command += ["--speaker", str(settings.RAPHAEL_PIPER_SPEAKER)]
 
-        env = os.environ.copy()
-        env["PIPER_OFFLINE_MODE"] = "1"
-        self._run(command, env=env, label="Japanese TTS")
-
+        self._run(command, label="Japanese TTS (NanamiNeural)")
     def _convert_raphael(self, input_path: str, output_path: str) -> None:
         command = [
             settings.RAPHAEL_APPLIO_PYTHON,
@@ -148,6 +145,7 @@ class RaphaelVoiceOutput(VoiceOutput):
             settings.RAPHAEL_MODEL_PATH,
             "--index-path",
             settings.RAPHAEL_INDEX_PATH,
+            "--pitch=-2",
             "--f0-method",
             settings.RAPHAEL_F0_METHOD,
             "--index-rate",
@@ -163,7 +161,7 @@ class RaphaelVoiceOutput(VoiceOutput):
         env = os.environ.copy()
         if settings.RAPHAEL_RVC_CPU:
             # Keep RVC off the GTX 1650 Ti so Qwen has the VRAM headroom.
-            env["CUDA_VISIBLE_DEVICES"] = ""
+            env["CUDA_VISIBLE_DEVICES"] = "-1"
         self._run(
             command,
             cwd=settings.RAPHAEL_APPLIO_DIR,
@@ -187,9 +185,9 @@ class RaphaelVoiceOutput(VoiceOutput):
 
         self._stop_requested = False
         with tempfile.TemporaryDirectory(prefix="great-sage-raphael-") as tmp:
-            base = os.path.join(tmp, "japanese.wav")
+            base = os.path.join(tmp, "japanese.mp3")
             converted = os.path.join(tmp, "raphael.wav")
-            self._synthesize_piper(spoken, base)
+            self._synthesize_nanami(spoken, base)
             if self._stop_requested:
                 return
             self._convert_raphael(base, converted)
@@ -205,3 +203,10 @@ class RaphaelVoiceOutput(VoiceOutput):
             self._sink.stop()
         except Exception:
             pass
+
+
+
+
+
+
+

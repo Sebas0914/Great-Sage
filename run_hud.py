@@ -1,4 +1,4 @@
-"""
+﻿"""
 Great Sage HUD - native app entry point.
 
 Opens hud_prototype.html in its own window (via pywebview) and runs the
@@ -582,13 +582,21 @@ def _build_voice(provider=None):
     log = logging.getLogger(__name__)
     if not settings.VOICE_ENABLED:
         return None
-    if settings.VOICE_ENGINE not in ("pocket", "f5"):
+    if settings.VOICE_ENGINE not in ("pocket", "f5", "raphael"):
         log.warning(
             "VOICE_ENGINE=%r isn't supported by the HUD app (only 'pocket' "
             "and 'f5' stream audio to the browser) - running text-only.",
             settings.VOICE_ENGINE,
         )
         return None
+
+    if settings.VOICE_ENGINE == "raphael":
+        from great_sage.voice.raphael_rvc_engine import RaphaelVoiceOutput
+        try:
+            return RaphaelVoiceOutput()
+        except VoiceError as exc:
+            log.warning("Raphael unavailable (%s) - running text-only.", exc)
+            return None
 
     if settings.VOICE_ENGINE == "f5":
         from great_sage.voice.f5_tts_engine import F5TTSVoiceOutput
@@ -741,3 +749,6 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+

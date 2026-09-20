@@ -1,4 +1,4 @@
-"""
+﻿"""
 Central configuration for Great Sage.
 
 Keeping settings in one place (instead of scattered constants) means
@@ -588,7 +588,25 @@ VOICE_ENABLED = True
 #              4x faster than realtime on an RTX 3060, so replies start
 #              almost immediately. Needs an NVIDIA GPU. See
 #              f5_tts_engine.py's docstring for the measurements.
-VOICE_ENGINE = "f5"
+VOICE_ENGINE = "raphael"
+RAPHAEL_TTS_VOICE = "ja-JP-NanamiNeural"
+RAPHAEL_TTS_RATE = "-5%"
+RAPHAEL_TTS_PITCH = "+0Hz"
+RAPHAEL_INDEX_RATE = 0.6
+RAPHAEL_PITCH = -2
+RAPHAEL_PROTECT = 0.33
+RAPHAEL_EMBEDDER_MODEL = "contentvec"
+RAPHAEL_SPEAKER_ID = 0
+RAPHAEL_RVC_CPU = True
+RAPHAEL_TTS_VOICE = "ja-JP-NanamiNeural"
+RAPHAEL_TTS_RATE = "-5%"
+RAPHAEL_TTS_PITCH = "+0Hz"
+RAPHAEL_INDEX_RATE = 0.6
+RAPHAEL_PITCH = -2
+RAPHAEL_PROTECT = 0.33
+RAPHAEL_EMBEDDER_MODEL = "contentvec"
+RAPHAEL_SPEAKER_ID = 0
+RAPHAEL_RVC_CPU = True
 
 # Words per minute. pyttsx3's default is ~200; slower is often easier to
 # follow for a "companion" voice. (sapi5 engine only)
@@ -610,7 +628,25 @@ VOICE_ID = None
 # ("clone" engine) wants 15-30s instead.
 CLONE_REFERENCE_AUDIO_PATH = os.path.join("voice_samples", "my_voice_clean.wav")
 
-# --- F5-TTS (VOICE_ENGINE = "f5") --------------------------------------
+# --- F5-TTS (VOICE_ENGINE = "raphael"
+RAPHAEL_TTS_VOICE = "ja-JP-NanamiNeural"
+RAPHAEL_TTS_RATE = "-5%"
+RAPHAEL_TTS_PITCH = "+0Hz"
+RAPHAEL_INDEX_RATE = 0.6
+RAPHAEL_PITCH = -2
+RAPHAEL_PROTECT = 0.33
+RAPHAEL_EMBEDDER_MODEL = "contentvec"
+RAPHAEL_SPEAKER_ID = 0
+RAPHAEL_RVC_CPU = True
+RAPHAEL_TTS_VOICE = "ja-JP-NanamiNeural"
+RAPHAEL_TTS_RATE = "-5%"
+RAPHAEL_TTS_PITCH = "+0Hz"
+RAPHAEL_INDEX_RATE = 0.6
+RAPHAEL_PITCH = -2
+RAPHAEL_PROTECT = 0.33
+RAPHAEL_EMBEDDER_MODEL = "contentvec"
+RAPHAEL_SPEAKER_ID = 0
+RAPHAEL_RVC_CPU = True
 # Reference clip to clone. A "<name>.txt" sidecar holding that clip's
 # transcript is optional but preferred - without one, F5 transcribes the
 # clip itself at startup, which is slower and less accurate.
@@ -780,3 +816,6 @@ VOICE_LINES = [
     (r"Not yet acquired\.", os.path.join(VOICE_LINES_DIR, "mishutoku.ogg")),
     (r"Target confirmed\.", os.path.join(VOICE_LINES_DIR, "taishou_kakunin.ogg")),
 ]
+
+
+

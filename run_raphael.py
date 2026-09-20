@@ -1,4 +1,4 @@
-"""Launch Great Sage with the local Japanese Raphael voice pipeline.
+﻿"""Launch Great Sage with the local Japanese Raphael voice pipeline.
 
 This wrapper exists so the original settings.py/main.py stay untouched while
 the Raphael experiment is on its own Git branch. It patches only runtime
@@ -18,7 +18,11 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 settings.RAPHAEL_PIPER_PYTHON = os.path.join(
     ROOT, ".raphael-venv", "Scripts", "python.exe"
 )
-settings.RAPHAEL_PIPER_MODEL = "tsukuyomi"
+settings.RAPHAEL_TTS_PYTHON = os.path.join(ROOT, ".raphael-venv", "Scripts", "python.exe")
+settings.RAPHAEL_TTS_PYTHON = os.path.join(ROOT, ".raphael-venv", "Scripts", "python.exe")
+settings.RAPHAEL_TTS_VOICE = "ja-JP-NanamiNeural"
+settings.RAPHAEL_TTS_RATE = "-5%"
+settings.RAPHAEL_TTS_PITCH = "+0Hz"
 
 # Official Applio Windows installer creates an env Python 3.12 environment.
 settings.RAPHAEL_APPLIO_DIR = os.path.join(ROOT, "third_party", "Applio")
@@ -35,7 +39,8 @@ settings.RAPHAEL_INDEX_PATH = os.path.join(
 )
 
 settings.RAPHAEL_F0_METHOD = "rmvpe"
-settings.RAPHAEL_INDEX_RATE = 0.8
+settings.RAPHAEL_INDEX_RATE = 0.6
+settings.RAPHAEL_PITCH = -2
 settings.RAPHAEL_PROTECT = 0.33
 settings.RAPHAEL_EMBEDDER_MODEL = "contentvec"
 settings.RAPHAEL_SPEAKER_ID = 0
@@ -46,7 +51,7 @@ settings.RAPHAEL_RVC_CPU = True
 # Make Qwen produce the Japanese text that Piper/RVC will actually speak.
 settings.SYSTEM_PROMPT = (
     settings.SYSTEM_PROMPT
-    + "\n\nLANGUAGE MODE: Respond entirely in natural, spoken Japanese (日本語). "
+    + "\n\nLANGUAGE MODE: Respond entirely in natural, spoken Japanese (æ—¥æœ¬èªž). "
       "Use normal Japanese punctuation and write Japanese text, not romaji. "
       "Keep the Great Sage / Raphael persona: calm, analytical, concise, "
       "and composed. Do not explain this language instruction.\n"
@@ -56,3 +61,5 @@ settings.VOICE_ENGINE = "raphael"
 
 # Run the normal application, including the HUD.
 runpy.run_path(os.path.join(ROOT, "app.py"), run_name="__main__")
+
+
