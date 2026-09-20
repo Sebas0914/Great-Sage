@@ -616,6 +616,19 @@ CLONE_REFERENCE_AUDIO_PATH = os.path.join("voice_samples", "my_voice_clean.wav")
 # clip itself at startup, which is slower and less accurate.
 F5_REFERENCE_AUDIO_PATH = os.path.join("voice_samples", "candidates", "voice_a.wav")
 
+# Spanish F5-TTS model. The stock F5-TTS v1 Base is trained for Chinese/English;
+# this finetuned checkpoint is specifically trained for Spanish speech.
+# The model/vocab are downloaded automatically by F5-TTS on first use.
+F5_MODEL = os.environ.get("GREAT_SAGE_F5_MODEL", "F5TTS_Base")
+F5_CKPT_FILE = os.environ.get(
+    "GREAT_SAGE_F5_CKPT",
+    "hf://vdaular/f5-tts-es/model_1200000.safetensors",
+)
+F5_VOCAB_FILE = os.environ.get(
+    "GREAT_SAGE_F5_VOCAB",
+    "hf://vdaular/f5-tts-es/vocab.txt",
+)
+
 # Flow-matching steps: the speed/quality dial, with no equivalent in an
 # autoregressive engine. Measured on one 9.5s line: 8 -> 2.16s (4.4x
 # realtime), 16 -> 3.94s, 32 -> 8.19s. 8 was chosen after an A/B where
