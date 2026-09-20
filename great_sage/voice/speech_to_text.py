@@ -23,9 +23,9 @@ def _get_model():
     global _model
     if _model is None:
         from faster_whisper import WhisperModel
-        # base.en: English-only, ~145MB, good accuracy/speed balance on
-        # CPU for short utterances. int8 compute keeps it fast without a GPU.
-        _model = WhisperModel("base.en", device="cpu", compute_type="int8")
+        # base: multilingual (~145MB), so Spanish and English both work.
+        # int8 compute keeps it fast without a GPU.
+        _model = WhisperModel("base", device="cpu", compute_type="int8")
     return _model
 
 
@@ -36,7 +36,7 @@ def transcribe(audio: np.ndarray) -> str:
         log.warning("Transcription skipped: empty recording")
         return ""
     model = _get_model()
-    segments, _ = model.transcribe(audio, language="en", vad_filter=True)
+    segments, _ = model.transcribe(audio, language=None, vad_filter=True)
     text = "".join(seg.text for seg in segments).strip()
 
     # An empty result used to be completely silent: faster_whisper logged
