@@ -303,6 +303,16 @@ def build_voice(provider: ModelProvider):
             print("Continuing in text-only mode.\n")
             return None
 
+    if settings.VOICE_ENGINE == "raphael":
+        from great_sage.voice.raphael_rvc_engine import RaphaelVoiceOutput
+
+        try:
+            return RaphaelVoiceOutput()
+        except VoiceError as exc:
+            print(f"[Voice unavailable] Raphael RVC: {exc}")
+            print("Continuing in text-only mode.\n")
+            return None
+
     if settings.VOICE_ENGINE == "f5":
         from great_sage.voice.f5_tts_engine import F5TTSVoiceOutput
 
