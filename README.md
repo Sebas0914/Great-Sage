@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Great Sage
 
 A local-first Windows desktop AI companion, built around a 3D HUD rather
@@ -163,3 +164,7 @@ odd choice in there is load-bearing and the reason is written down.
 The pre-recorded voice lines under `voice_lines/` are audio from *That
 Time I Got Reincarnated as a Slime*, used here for a personal companion
 project. They are not mine and are included for that purpose only.
+=======
+# Great-Sage
+Creditos de proyecto base: Krazaa / shogunyan12,  proyecto modificado de https://github.com/shogunyan12/The-GREAT-SAGE/tree/master en el cual tendrás una voz de interacción con "gran sabio" de tensura, corre de forma local, y es totalmente gratuita, reitero, lo mio es una modificacion el credito mayor es para Krazaa / shogunyan12
+>>>>>>> 8fc3c0f898692b1b69a69c2fc1f37616d8cb675d
