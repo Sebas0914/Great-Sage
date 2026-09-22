@@ -404,11 +404,34 @@ class _HudHostApi:
             return self._maximized
 
     def close_app(self) -> bool:
+        """Close the HUD window without stopping Great Sage.
+
+        The X button is a *minimise-to-pet* action: the chat engine, voice
+        stack and server remain alive while the transparent overlay becomes
+        the visible desktop presence.  A real process exit is kept separate
+        in exit_app(), so accidentally closing the HUD cannot kill the
+        resident assistant.
+        """
         try:
-            self._window.destroy()
+            return self.set_overlay(True)
+        except Exception:
+            log.exception("close-to-overlay failed")
+            return False
+
+    def exit_app(self) -> bool:
+        """Explicitly terminate the HUD and its overlay process."""
+        try:
+            if self._overlay_proc is not None:
+                try:
+                    self._overlay_proc.terminate()
+                except Exception:
+                    pass
+                self._overlay_proc = None
+            if self._window is not None:
+                self._window.destroy()
             return True
         except Exception:
-            log.exception("close failed")
+            log.exception("exit failed")
             return False
 
     # ---- the transparent overlay, hosted in its own process -----------
