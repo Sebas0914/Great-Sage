@@ -43,6 +43,7 @@ surface format.
 import argparse
 import os
 import sys
+import time
 
 from PySide6.QtCore import QEvent, QPoint, Qt, QTimer, QUrl
 from PySide6.QtGui import QColor, QCursor, QGuiApplication, QSurfaceFormat
@@ -164,6 +165,16 @@ class OverlayView(QWebEngineView):
         self._ct_timer.timeout.connect(self._update_click_through)
         self._ct_timer.start(CLICK_THROUGH_POLL_MS)
 
+        # Sample the global cursor because the overlay is click-through
+        # outside the visual core. This enables petting and drag-speed
+        # reactions without sacrificing click-through behaviour.
+        self._pet_last_pos = QCursor.pos()
+        self._pet_last_time = time.monotonic()
+        self._pet_state = "idle"
+        self._pet_timer = QTimer(self)
+        self._pet_timer.timeout.connect(self._update_pet_state)
+        self._pet_timer.start(50)
+
     # ---- click-through --------------------------------------------
     def _interactive_at(self, gpos) -> bool:
         """Is there anything to hit at this screen position?"""
@@ -207,6 +218,48 @@ class OverlayView(QWebEngineView):
         if not self.isVisible():
             return
         self._set_click_through(not self._interactive_at(QCursor.pos()))
+
+    # ---- pet / drag reactions -------------------------------------
+    def _update_pet_state(self):
+        """Classify cursor interaction with the floating character."""
+        if not self.isVisible():
+            return
+        now = time.monotonic()
+        pos = QCursor.pos()
+        dt = max(0.001, now - self._pet_last_time)
+        speed = ((pos.x() - self._pet_last_pos.x()) ** 2 +
+                 (pos.y() - self._pet_last_pos.y()) ** 2) ** 0.5 / dt
+        self._pet_last_pos = pos
+        self._pet_last_time = now
+
+        top = self.frameGeometry().topLeft()
+        x, y = pos.x() - top.x(), pos.y() - top.y()
+        cx, cy = self.width() / 2.0, self.height() / 2.0
+        inside = ((x - cx) ** 2 + (y - cy) ** 2) <= (
+            self.width() * CORE_HIT_FRACTION * 1.35) ** 2
+
+        try:
+            dragging = bool(ctypes.windll.user32.GetAsyncKeyState(0x01) & 0x8000)
+        except Exception:
+            dragging = False
+
+        if dragging and speed >= 1200:
+            state = "confused"
+        elif dragging and speed >= 650:
+            state = "flustered"
+        elif inside and speed >= 12:
+            state = "pet"
+        elif inside:
+            state = "attentive"
+        else:
+            state = "idle"
+
+        if state != self._pet_state:
+            self._pet_state = state
+            try:
+                self.setWindowTitle("GS_PET_STATE:" + state)
+            except Exception:
+                pass
 
     # ---- page -> host ---------------------------------------------
     def _on_title(self, title: str):
