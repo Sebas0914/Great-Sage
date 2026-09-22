@@ -258,7 +258,13 @@ class OverlayView(QWebEngineView):
         if state != self._pet_state:
             self._pet_state = state
             try:
-                self.setWindowTitle("GS_PET_STATE:" + state)
+                # This is a page signal, not the native window caption:
+                # QWebEnginePage.titleChanged is the existing bridge used
+                # by the overlay for READY/EXIT/PANEL messages.
+                safe = state.replace("'", "")
+                self.page().runJavaScript(
+                    "document.title = 'GS_PET_STATE:" + safe + "';"
+                )
             except Exception:
                 pass
 
