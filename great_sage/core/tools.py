@@ -1148,3 +1148,139 @@ _TRIGGERS = _TRIGGERS + (
     "watch my", "watch the", "tell me when", "let me know when",
     "scheduled", "cancel",
 )
+
+
+# ---------------------------------------------------------------------
+# Windows computer control.
+#
+# These tools use the native Win32 input APIs rather than an unrestricted
+# shell.  They let Great Sage actually operate the desktop after it has
+# inspected the screen, while avoiding arbitrary command execution.
+# ---------------------------------------------------------------------
+
+from great_sage.core import computer_control as _computer
+
+
+def _computer_move_mouse(x: int, y: int, duration: float = 0.0) -> str:
+    return _computer.move_mouse(x, y, duration)
+
+
+def _computer_click(button: str = "left", clicks: int = 1) -> str:
+    return _computer.click_mouse(button, clicks)
+
+
+def _computer_scroll(clicks: int) -> str:
+    return _computer.scroll_mouse(clicks)
+
+
+def _computer_type_text(text: str, interval: float = 0.0) -> str:
+    return _computer.type_text(text, interval)
+
+
+def _computer_press_key(key: str) -> str:
+    return _computer.press_key(key)
+
+
+def _computer_hotkey(keys: str) -> str:
+    return _computer.hotkey(keys)
+
+
+def _computer_mouse_position() -> str:
+    x, y = _computer.mouse_position()
+    return "Mouse is at (%d, %d)." % (x, y)
+
+
+def _computer_list_windows() -> str:
+    return _computer.list_windows()
+
+
+def _computer_focus_window(title: str) -> str:
+    return _computer.focus_window(title)
+
+
+def _computer_close_window(title: str) -> str:
+    return _computer.close_window(title)
+
+
+REGISTRY.extend([
+    Tool(
+        "computer_move_mouse",
+        "Move the Windows mouse cursor to screen coordinates. Use after "
+        "look_at_screen when a visible control needs to be targeted.",
+        {"type": "object", "properties": {
+            "x": {"type": "integer"}, "y": {"type": "integer"},
+            "duration": {"type": "number", "description": "Seconds, normally 0 to 1."}},
+         "required": ["x", "y"]},
+        _computer_move_mouse, SAFE),
+    Tool(
+        "computer_click",
+        "Click the Windows mouse at its current position. Use only after "
+        "you know what is under the cursor.",
+        {"type": "object", "properties": {
+            "button": {"type": "string", "description": "left, right or middle"},
+            "clicks": {"type": "integer", "description": "1 to 3"}},
+         },
+         _computer_click, SAFE),
+    Tool(
+        "computer_scroll",
+        "Scroll the active Windows application.",
+        {"type": "object", "properties": {
+            "clicks": {"type": "integer", "description": "Positive up, negative down."}},
+         "required": ["clicks"]},
+        _computer_scroll, SAFE),
+    Tool(
+        "computer_type_text",
+        "Type text into the currently focused Windows control using Unicode keyboard input.",
+        {"type": "object", "properties": {
+            "text": {"type": "string"},
+            "interval": {"type": "number", "description": "Optional seconds between characters."}},
+         "required": ["text"]},
+        _computer_type_text, SAFE),
+    Tool(
+        "computer_press_key",
+        "Press one Windows key, such as Enter, Escape, Tab, F5 or a single character.",
+        {"type": "object", "properties": {"key": {"type": "string"}}},
+        _computer_press_key, SAFE),
+    Tool(
+        "computer_hotkey",
+        "Send a Windows keyboard shortcut such as Ctrl+L or Alt+Tab.",
+        {"type": "object", "properties": {
+            "keys": {"type": "string", "description": "Keys separated by +, e.g. Ctrl+L."}},
+         "required": ["keys"]},
+        _computer_hotkey, SAFE),
+    Tool(
+        "computer_mouse_position",
+        "Read the current Windows mouse coordinates.",
+        {"type": "object", "properties": {}},
+        _computer_mouse_position, SAFE),
+    Tool(
+        "computer_list_windows",
+        "List visible Windows application windows with their native handles.",
+        {"type": "object", "properties": {}},
+        _computer_list_windows, SAFE),
+    Tool(
+        "computer_focus_window",
+        "Focus a visible Windows application window by part of its title.",
+        {"type": "object", "properties": {"title": {"type": "string"}}},
+        _computer_focus_window, SAFE),
+    Tool(
+        "computer_close_window",
+        "Request closing a visible Windows application window by title.",
+        {"type": "object", "properties": {"title": {"type": "string"}}},
+        _computer_close_window, SAFE),
+])
+
+BY_NAME = {t.name: t for t in REGISTRY}
+_TRIGGERS = _TRIGGERS + (
+    "click", "double click", "right click", "left click", "middle click",
+    "move the mouse", "move mouse", "mouse cursor", "cursor", "type ",
+    "write ", "press ", "hotkey", "keyboard", "scroll", "focus window",
+    "close window", "computer", "on my pc", "on my computer",
+    # Spanish action phrases are included because the voice/UI is commonly
+    # used in Spanish and the tool schema must be attached before the model
+    # can decide to operate the desktop.
+    "haz clic", "hacer clic", "clic en", "mueve el mouse", "mueve el ratón",
+    "mover el mouse", "mover el ratón", "escribe ", "escribir ",
+    "presiona ", "pulsa ", "tecla ", "atajo", "desplázate", "desplazar",
+    "ventana", "en mi pc", "en mi computadora", "en mi ordenador",
+)
