@@ -41,6 +41,7 @@ surface format.
 """
 
 import argparse
+import ctypes
 import os
 import sys
 import time
