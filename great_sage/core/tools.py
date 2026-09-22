@@ -1276,4 +1276,11 @@ _TRIGGERS = _TRIGGERS + (
     "move the mouse", "move mouse", "mouse cursor", "cursor", "type ",
     "write ", "press ", "hotkey", "keyboard", "scroll", "focus window",
     "close window", "computer", "on my pc", "on my computer",
+    # Spanish action phrases are included because the voice/UI is commonly
+    # used in Spanish and the tool schema must be attached before the model
+    # can decide to operate the desktop.
+    "haz clic", "hacer clic", "clic en", "mueve el mouse", "mueve el ratón",
+    "mover el mouse", "mover el ratón", "escribe ", "escribir ",
+    "presiona ", "pulsa ", "tecla ", "atajo", "desplázate", "desplazar",
+    "ventana", "en mi pc", "en mi computadora", "en mi ordenador",
 )
