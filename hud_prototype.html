@@ -1645,6 +1645,32 @@ body.mini:hover #mini-drag-handle { opacity: 1; }
 body.mini:hover #mini-exit { opacity: 1; }
 #mini-exit:hover { color: #dff1ff; border-color: rgba(180, 220, 255, 0.5); }
 
+
+/* Floating Great Sage reactions. These states are driven by the native
+   overlay host, so they work even though most of the overlay is click-through. */
+body.mini.pet-state-pet #canvas-wrap { animation: gs-pet-breathe 620ms ease-in-out infinite alternate; }
+body.mini.pet-state-attentive #canvas-wrap { animation: gs-pet-attend 900ms ease-in-out infinite alternate; }
+body.mini.pet-state-flustered #canvas-wrap { animation: gs-pet-fluster 260ms ease-in-out infinite alternate; }
+body.mini.pet-state-confused #canvas-wrap { animation: gs-pet-confused 720ms ease-in-out infinite; }
+@keyframes gs-pet-breathe {
+  from { transform: scale(1); }
+  to { transform: scale(1.025); }
+}
+@keyframes gs-pet-attend {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.12); }
+}
+@keyframes gs-pet-fluster {
+  from { transform: translateX(-2px) rotate(-0.4deg); }
+  to { transform: translateX(2px) rotate(0.4deg); }
+}
+@keyframes gs-pet-confused {
+  0%, 100% { transform: rotate(0deg) translateX(0); }
+  20% { transform: rotate(-2deg) translateX(-3px); }
+  40% { transform: rotate(2deg) translateX(3px); }
+  60% { transform: rotate(-1.5deg) translateX(-2px); }
+  80% { transform: rotate(1.5deg) translateX(2px); }
+}
 </style>
 </head>
 <body class="startup-snap startup-active startup-intro">
@@ -9233,6 +9259,32 @@ const MINI_CHAT_PAD = 3;
 
   animate();
 })();
+
+  // Native overlay -> DOM pet state bridge. The Qt host changes the page
+  // title to GS_PET_STATE:<state>; MutationObserver catches it without
+  // requiring QWebChannel or another bridge.
+  (function installPetStateBridge() {
+    let last = "";
+    function apply(title) {
+      const prefix = "GS_PET_STATE:";
+      if (!title || title.indexOf(prefix) !== 0) return;
+      const state = title.slice(prefix.length).trim();
+      if (!state || state === last) return;
+      last = state;
+      document.body.classList.remove(
+        "pet-state-idle", "pet-state-attentive", "pet-state-pet",
+        "pet-state-flustered", "pet-state-confused"
+      );
+      document.body.classList.add("pet-state-" + state);
+    }
+    const title = document.querySelector("title");
+    if (title) {
+      new MutationObserver(() => apply(document.title)).observe(
+        title, {childList: true, subtree: true, characterData: true}
+      );
+    }
+    setInterval(() => apply(document.title), 120);
+  })();
 </script>
 </body>
 </html>

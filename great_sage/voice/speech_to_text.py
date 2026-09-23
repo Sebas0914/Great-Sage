@@ -23,7 +23,9 @@ def _get_model():
     global _model
     if _model is None:
         from faster_whisper import WhisperModel
-        # base: multilingual (~145MB), so Spanish and English both work.
+        # Keep the Windows build multilingual while taking the Linux build's
+        # lazy-loading and diagnostics improvements. base (~145MB) supports
+        # English and Spanish without requiring a separate model.
         # int8 compute keeps it fast without a GPU.
         _model = WhisperModel("base", device="cpu", compute_type="int8")
     return _model
@@ -36,18 +38,13 @@ def transcribe(audio: np.ndarray) -> str:
         log.warning("Transcription skipped: empty recording")
         return ""
     model = _get_model()
-    segments, _ = model.transcribe(audio, language=None, vad_filter=True)
+    segments, _ = model.transcribe(audio, language="es", vad_filter=True)
     text = "".join(seg.text for seg in segments).strip()
 
-    # An empty result used to be completely silent: faster_whisper logged
-    # that it processed the audio, this returned "", and the caller simply
-    # did nothing. Push-to-talk looked like it worked while Sage never
-    # heard a word, with nothing anywhere saying why.
-    #
-    # That is exactly how a packaged build failed - vad_filter needs
-    # faster_whisper's assets/silero_vad_v6.onnx, which was not bundled,
-    # so nothing was ever detected as speech. Worth a line in the log
-    # whichever way it goes.
+    # Log the result so push-to-talk failures are visible in packaged builds.
+    # In particular, vad_filter depends on faster-whisper's Silero VAD asset;
+    # if that asset is missing, the recording can be processed with no text
+    # and the caller otherwise has no useful clue what happened.
     seconds = audio.size / 16000.0
     if text:
         log.info("Transcribed %.1fs of audio: %r", seconds, text)
