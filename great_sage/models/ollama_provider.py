@@ -82,6 +82,44 @@ class OllamaProvider(ModelProvider):
             return self.image_num_ctx
         return self.base_num_ctx
 
+    def send_fast_message(self, messages: List[Message]) -> str:
+        """Small, non-thinking Ollama call for latency-sensitive side tasks.
+
+        Raphael's Spanish->Japanese bridge does not need the full 8192-token
+        context or a reasoning pass. Keeping this separate from send_message
+        preserves the normal model path while making the voice-only bridge
+        much cheaper.
+        """
+        body = self._payload(messages, stream=False)
+        body["think"] = False
+        body["options"] = {"num_ctx": 2048, "num_predict": 128}
+        try:
+            response = requests.post(
+                f"{self.host}/api/chat",
+                json=body,
+                timeout=self.timeout,
+            )
+            response.raise_for_status()
+        except requests.exceptions.ConnectionError as exc:
+            raise ModelProviderError(
+                f"Could not connect to Ollama at {self.host}. "
+                "Is Ollama running? (try `ollama serve`)"
+            ) from exc
+        except requests.exceptions.Timeout as exc:
+            raise ModelProviderError(
+                f"Ollama did not respond within {self.timeout}s."
+            ) from exc
+        except requests.exceptions.HTTPError as exc:
+            raise ModelProviderError(self._describe_http_error(exc)) from exc
+
+        try:
+            data = response.json()
+            return data["message"]["content"]
+        except (ValueError, KeyError) as exc:
+            raise ModelProviderError(
+                "Ollama returned an unexpected response format."
+            ) from exc
+
     def send_message(self, messages: List[Message]) -> str:
         try:
             response = requests.post(
