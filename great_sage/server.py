@@ -208,6 +208,35 @@ def _log_exceptions(fn, label):
     return run
 
 
+def _translate_for_raphael(text: str, provider) -> str:
+    """Translate delivered Spanish HUD text into Japanese for Raphael only.
+
+    The model history and HUD remain Spanish. This is a voice-only bridge,
+    deliberately applied after guardrails so internal prompt text cannot
+    become spoken content.
+    """
+    spoken = " ".join((text or "").split())
+    if not spoken:
+        return ""
+    fixed = {
+        "Hecho.": "完了しました。",
+        "Hecho. Acciones completadas.": "完了しました。すべての操作が完了しました。",
+    }
+    if spoken in fixed:
+        return fixed[spoken]
+    prompt = (
+        "Translate only the following Spanish text into natural Japanese "
+        "for spoken dialogue. Return only Japanese. Do not add information, "
+        "explanations, labels, markdown, or commentary. Preserve the meaning "
+        "and tone.\n\n"
+        + spoken
+    )
+    translated = provider.send_message([{"role": "user", "content": prompt}]).strip()
+    if not translated:
+        raise ModelProviderError("Raphael Japanese translation returned empty text.")
+    return translated
+
+
 def _guard_protected() -> str:
     """The prompt PROSE a reply must never recite back, built once.
 
@@ -637,6 +666,7 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
         and voice is not None
         and hasattr(voice, "speak_stream")
         and voice.current_sink is sink
+        and getattr(settings, "VOICE_ENGINE", "").lower() != "raphael"
     )
     text_q: "queue.Queue" = queue.Queue()
     speech_error = []
@@ -787,6 +817,10 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
         # `text` carries the FINAL reply so the HUD's transcript records what
         # was actually delivered, not the discarded draft it streamed.
         send({"type": "reply_done", "text": guarded})
+        spoken_text = guarded
+        if (voice is not None and
+                getattr(settings, "VOICE_ENGINE", "").lower() == "raphael"):
+            spoken_text = _translate_for_raphael(guarded, engine.provider)
     except ModelProviderError as exc:
         log.exception("Model provider error handling chat message %r", text)
         end_stream()
@@ -824,7 +858,7 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
             # its formatting while the ear is spared. Smaller models need
             # this - qwen2.5:3b leaked markdown on 3/3 list-inviting
             # prompts, and hardening the prompt only reached 1/3.
-            voice.speak(cap_for_speech(speakable("".join(reply_chunks))))
+            voice.speak(cap_for_speech(speakable(spoken_text)))
     except VoiceError as exc:
         log.exception("Voice/audio error speaking reply to %r", text)
         try:
