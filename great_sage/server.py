@@ -231,7 +231,9 @@ def _translate_for_raphael(text: str, provider) -> str:
         "and tone.\n\n"
         + spoken
     )
-    translated = (provider.send_fast_message([{"role": "user", "content": prompt}])\n                  if hasattr(provider, "send_fast_message")\n                  else provider.send_message([{"role": "user", "content": prompt}])).strip()
+    translated = (provider.send_fast_message([{"role": "user", "content": prompt}])
+                  if hasattr(provider, "send_fast_message")
+                  else provider.send_message([{"role": "user", "content": prompt}])).strip()
     if not translated:
         raise ModelProviderError("Raphael Japanese translation returned empty text.")
     return translated
