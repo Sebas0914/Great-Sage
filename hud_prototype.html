@@ -5434,9 +5434,13 @@ const MINI_CHAT_PAD = 3;
     } else if (msg.type === 'audio') {
       // The words in THIS clip, revealed as it starts playing, so the
       // caption tracks the voice instead of racing ahead of it.
-      if (captionFollowsSpeech && msg.text) {
+      if (captionFollowsSpeech && (replyBuffer || msg.text)) {
         aiThinking = false;
-        spokenSoFar = spokenSoFar ? spokenSoFar + ' ' + msg.text : msg.text;
+        // Raphael speaks Japanese, but the HUD caption must stay in Spanish.
+        // replyBuffer is the delivered Spanish reply; msg.text is the
+        // voice-only Japanese bridge text.
+        const captionText = replyBuffer || msg.text;
+        spokenSoFar = captionText;
         showCaption(spokenSoFar);
       }
       if (sfxToggle.checked) {
