@@ -233,7 +233,7 @@ def _translate_for_raphael(text: str, provider=None) -> str:
         _RAPHAEL_TRANSLATOR = OllamaProvider(
             host=settings.OLLAMA_HOST,
             model=settings.OLLAMA_DEFAULT_MODEL,
-            timeout=20,
+            timeout=60,
             think=False,
         )
     prompt = (
