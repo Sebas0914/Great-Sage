@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -79,7 +79,7 @@
     max-width: 82vw;
     font-family: 'Segoe UI', 'Trebuchet MS', 'Verdana', sans-serif;
     font-weight: 600;
-    font-size: clamp(24px, 4.2vw, 56px);
+    font-size: clamp(48px, 6vw, 84px);
     line-height: 1.35;
     text-align: center;
     color: #ffffff;
@@ -145,7 +145,7 @@
   #bar-caption-text {
     max-width: 78vw;
     font-family: Consolas, monospace;
-    font-size: clamp(20px, 3.2vw, 42px);
+    font-size: clamp(42px, 5.5vw, 72px);
     line-height: 1.5;
     color: #ffffff;
     text-align: center;
@@ -1179,8 +1179,8 @@
     margin-top: 3px; font-size: 10px; letter-spacing: 0.1em;
     opacity: 0.45;
   }
-  #chat-model-provider:not(:empty)::before { content: " · "; }
-  #chat-mode-badge:not(:empty)::before { content: " · "; }
+  #chat-model-provider:not(:empty)::before { content: " Â· "; }
+  #chat-mode-badge:not(:empty)::before { content: " Â· "; }
 
 
 
@@ -1699,16 +1699,16 @@ body.mini:hover #mini-exit { opacity: 1; }
 <div id="core-pole"></div>
 
 <div id="caption-box">
-  <button class="caption-close-btn" title="Dismiss">✕</button>
+  <button class="caption-close-btn" title="Dismiss">âœ•</button>
   <div id="caption-text"></div>
 </div>
 <div id="cinematic-caption">
-  <button class="caption-close-btn" title="Dismiss">✕</button>
+  <button class="caption-close-btn" title="Dismiss">âœ•</button>
   <div id="cinematic-caption-text"></div>
 </div>
 <div id="bar-caption">
   <div id="bar-caption-frame">
-    <button class="caption-close-btn" title="Dismiss">✕</button>
+    <button class="caption-close-btn" title="Dismiss">âœ•</button>
     <div id="bar-caption-text"></div>
   </div>
 </div>
@@ -1806,7 +1806,7 @@ body.mini:hover #mini-exit { opacity: 1; }
 
 <div id="center-panel-overlay">
   <div id="center-panel-frame">
-    <button id="center-panel-close" title="Close">✕</button>
+    <button id="center-panel-close" title="Close">âœ•</button>
     <!-- Its own element purely to carry the fisheye clip: the frame's
          clip-path is already driving the open/close bar animation and
          #center-panel's is driving the glitch-in reveal, and an element
@@ -5235,7 +5235,7 @@ const MINI_CHAT_PAD = 3;
 
   document.getElementById('btn-speak').addEventListener('click', () => {
     const file = VOICE_LINE_FILES[Math.floor(Math.random() * VOICE_LINE_FILES.length)];
-    showCaption('▶ ' + prettifyVoiceLineName(file));
+    showCaption('â–¶ ' + prettifyVoiceLineName(file));
     if (sfxToggle.checked) {
       audioCtx.resume();
       voiceLineAudio.onended = null; // clear any stale handler from a real reply's playServerAudio call
@@ -5577,11 +5577,11 @@ const MINI_CHAT_PAD = 3;
           el.className = 'setting-hint warn';
           el.textContent = comboLabel(msg.failed) + ' is already used by another '
             + 'application, so it was not changed. Still using '
-            + comboLabel(msg.binding) + ' — pick a different key.';
+            + comboLabel(msg.binding) + ' â€” pick a different key.';
         } else if (!msg.active) {
           el.className = 'setting-hint warn';
           el.textContent = comboLabel(msg.binding || '') + ' could not be registered '
-            + '— another application already uses it. Pick a different key.';
+            + 'â€” another application already uses it. Pick a different key.';
         } else {
           el.className = 'setting-hint';
           el.textContent = comboLabel(msg.binding) + ' is active.';
@@ -5702,7 +5702,7 @@ const MINI_CHAT_PAD = 3;
     ensureActiveTopic();
     const topic = currentTopic();
     if (topic.title === 'New chat') {
-      topic.title = text.length > 40 ? text.slice(0, 40) + '…' : text;
+      topic.title = text.length > 40 ? text.slice(0, 40) + 'â€¦' : text;
     }
     topic.messages.push({ role: 'user', text });
     topic.updated = Date.now();
@@ -5899,7 +5899,7 @@ const MINI_CHAT_PAD = 3;
     ensureActiveTopic();
     const topic = currentTopic();
     if (topic.title === 'New chat') {
-      topic.title = text.length > 40 ? text.slice(0, 40) + '…' : text;
+      topic.title = text.length > 40 ? text.slice(0, 40) + 'â€¦' : text;
     }
     topic.messages.push({ role: 'user', text });
     topic.updated = Date.now();
@@ -8116,7 +8116,7 @@ const MINI_CHAT_PAD = 3;
         const previewBtn = document.createElement('button');
         previewBtn.type = 'button';
         previewBtn.className = 'voice-line-preview-btn';
-        previewBtn.textContent = '▶';
+        previewBtn.textContent = 'â–¶';
         previewBtn.title = 'Preview the recorded clip';
         previewBtn.addEventListener('click', (e) => {
           e.preventDefault(); // don't toggle the checkbox via label click-through
@@ -9232,3 +9232,5 @@ const MINI_CHAT_PAD = 3;
 </script>
 </body>
 </html>
+
+

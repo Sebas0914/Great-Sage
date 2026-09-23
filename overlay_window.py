@@ -1,4 +1,4 @@
-"""Transparent desktop overlay host, run as its own process.
+﻿"""Transparent desktop overlay host, run as its own process.
 
 Great Sage's main window is pywebview + WinForms + WebView2, and that
 stack CANNOT produce a transparent window: WebView2 renders into a child
@@ -224,7 +224,7 @@ class OverlayView(QWebEngineView):
                 self._placed = True
                 place_top_right(self, self.width())
             self.show()
-            _apply_ws_border(self)
+              # WS_BORDER disabled for transparent overlay
             self._install_mouse_filter()
             return
         if title.strip().startswith(OPEN_PANEL_PREFIX):

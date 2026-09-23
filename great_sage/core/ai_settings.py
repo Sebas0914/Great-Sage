@@ -1,4 +1,4 @@
-r"""API keys and provider choice for Chat Mode's AI settings.
+﻿r"""API keys and provider choice for Chat Mode's AI settings.
 
 Separate from hud_settings.py on purpose. That file holds display
 preferences and is harmless; this one holds SECRETS, and the two should
@@ -29,7 +29,7 @@ from typing import Any, Dict
 log = logging.getLogger(__name__)
 
 # Providers Great Sage knows how to talk to. "local" needs no key.
-PROVIDERS = ("local", "anthropic", "openai")
+PROVIDERS = ("local", "anthropic", "openai", "nvidia")
 TTS_PROVIDERS = ("f5", "elevenlabs", "openai")
 
 DEFAULTS: Dict[str, Any] = {
@@ -201,9 +201,23 @@ def build_provider(data, fallback):
             from great_sage.models.openai_provider import OpenAIProvider
             return (OpenAIProvider(api_key=key, model=model),
                     "OpenAI / Online")
+        if want == "nvidia":
+            from great_sage.models.openai_provider import OpenAIProvider
+            return (
+                OpenAIProvider(
+                    api_key=key,
+                    model=model,
+                    base_url="https://integrate.api.nvidia.com/v1/chat/completions",
+                    provider_name="NVIDIA",
+                ),
+                "NVIDIA / Online",
+            )
     except Exception:
         # Deliberately no exception text: it can echo request details.
         log.exception("Could not start the %r provider; staying local", want)
         return fallback, "Ollama / Local"
     log.warning("Provider %r is not implemented yet; staying local", want)
     return fallback, "Ollama / Local"
+
+
+

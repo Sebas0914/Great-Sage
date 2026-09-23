@@ -1,0 +1,233 @@
+[1mdiff --git a/great_sage/voice/raphael_rvc_engine.py b/great_sage/voice/raphael_rvc_engine.py[m
+[1mindex 5a3683c..ad0e4a1 100644[m
+[1m--- a/great_sage/voice/raphael_rvc_engine.py[m
+[1m+++ b/great_sage/voice/raphael_rvc_engine.py[m
+[36m@@ -1,4 +1,4 @@[m
+[31m-"""Local Japanese -> Raphael voice pipeline.[m
+[32m+[m[32m﻿"""Local Japanese -> Raphael voice pipeline.[m
+ [m
+ Pipeline:[m
+     Great Sage text -> Piper Plus Japanese TTS -> Applio/RVC Raphael model.[m
+[36m@@ -51,8 +51,8 @@[m [mclass RaphaelVoiceOutput(VoiceOutput):[m
+ [m
+     def _validate_configuration(self) -> None:[m
+         required = {[m
+[31m-            "RAPHAEL_PIPER_PYTHON": settings.RAPHAEL_PIPER_PYTHON,[m
+[31m-            "RAPHAEL_PIPER_MODEL": settings.RAPHAEL_PIPER_MODEL,[m
+[32m+[m[32m            "RAPHAEL_PIPER_PYTHON": settings.RAPHAEL_TTS_PYTHON,[m
+[32m+[m[32m            "RAPHAEL_PIPER_MODEL": settings.RAPHAEL_TTS_VOICE,[m
+             "RAPHAEL_APPLIO_DIR": settings.RAPHAEL_APPLIO_DIR,[m
+             "RAPHAEL_APPLIO_PYTHON": settings.RAPHAEL_APPLIO_PYTHON,[m
+             "RAPHAEL_MODEL_PATH": settings.RAPHAEL_MODEL_PATH,[m
+[36m@@ -68,9 +68,9 @@[m [mclass RaphaelVoiceOutput(VoiceOutput):[m
+                 "Raphael voice is not configured. Missing: " + ", ".join(missing)[m
+             )[m
+ [m
+[31m-        if not os.path.isfile(settings.RAPHAEL_PIPER_PYTHON):[m
+[32m+[m[32m        if not os.path.isfile(settings.RAPHAEL_TTS_PYTHON):[m
+             raise VoiceError([m
+[31m-                f"Raphael Piper Python was not found: {settings.RAPHAEL_PIPER_PYTHON}"[m
+[32m+[m[32m                f"Raphael Piper Python was not found: {settings.RAPHAEL_TTS_PYTHON}"[m
+             )[m
+         if not os.path.isfile(settings.RAPHAEL_APPLIO_PYTHON):[m
+             raise VoiceError([m
+[36m@@ -116,25 +116,22 @@[m [mclass RaphaelVoiceOutput(VoiceOutput):[m
+                 + (f"\n{detail}" if detail else "")[m
+             )[m
+ [m
+[31m-    def _synthesize_piper(self, text: str, output_path: str) -> None:[m
+[32m+[m[32m    def _synthesize_nanami(self, text: str, output_path: str) -> None:[m
+         command = [[m
+[31m-            settings.RAPHAEL_PIPER_PYTHON,[m
+[32m+[m[32m            settings.RAPHAEL_TTS_PYTHON,[m
+             "-m",[m
+[31m-            "piper_plus",[m
+[31m-            "--model",[m
+[31m-            settings.RAPHAEL_PIPER_MODEL,[m
+[32m+[m[32m            "edge_tts",[m
+[32m+[m[32m            "--voice",[m
+[32m+[m[32m            settings.RAPHAEL_TTS_VOICE,[m
+             "--text",[m
+             text,[m
+[31m-            "--output_file",[m
+[32m+[m[32m            "--rate=-5%",[m
+[32m+[m[32m            "--pitch=+0Hz",[m
+[32m+[m[32m            "--write-media",[m
+             output_path,[m
+         ][m
+[31m-        if settings.RAPHAEL_PIPER_SPEAKER is not None:[m
+[31m-            command += ["--speaker", str(settings.RAPHAEL_PIPER_SPEAKER)][m
+[31m-[m
+[31m-        env = os.environ.copy()[m
+[31m-        env["PIPER_OFFLINE_MODE"] = "1"[m
+[31m-        self._run(command, env=env, label="Japanese TTS")[m
+ [m
+[32m+[m[32m        self._run(command, label="Japanese TTS (NanamiNeural)")[m
+     def _convert_raphael(self, input_path: str, output_path: str) -> None:[m
+         command = [[m
+             settings.RAPHAEL_APPLIO_PYTHON,[m
+[36m@@ -148,6 +145,7 @@[m [mclass RaphaelVoiceOutput(VoiceOutput):[m
+             settings.RAPHAEL_MODEL_PATH,[m
+             "--index-path",[m
+             settings.RAPHAEL_INDEX_PATH,[m
+[32m+[m[32m            "--pitch=-2",[m
+             "--f0-method",[m
+             settings.RAPHAEL_F0_METHOD,[m
+             "--index-rate",[m
+[36m@@ -163,7 +161,7 @@[m [mclass RaphaelVoiceOutput(VoiceOutput):[m
+         env = os.environ.copy()[m
+         if settings.RAPHAEL_RVC_CPU:[m
+             # Keep RVC off the GTX 1650 Ti so Qwen has the VRAM headroom.[m
+[31m-            env["CUDA_VISIBLE_DEVICES"] = ""[m
+[32m+[m[32m            env["CUDA_VISIBLE_DEVICES"] = "-1"[m
+         self._run([m
+             command,[m
+             cwd=settings.RAPHAEL_APPLIO_DIR,[m
+[36m@@ -187,9 +185,9 @@[m [mclass RaphaelVoiceOutput(VoiceOutput):[m
+ [m
+         self._stop_requested = False[m
+         with tempfile.TemporaryDirectory(prefix="great-sage-raphael-") as tmp:[m
+[31m-            base = os.path.join(tmp, "japanese.wav")[m
+[32m+[m[32m            base = os.path.join(tmp, "japanese.mp3")[m
+             converted = os.path.join(tmp, "raphael.wav")[m
+[31m-            self._synthesize_piper(spoken, base)[m
+[32m+[m[32m            self._synthesize_nanami(spoken, base)[m
+             if self._stop_requested:[m
+                 return[m
+             self._convert_raphael(base, converted)[m
+[36m@@ -205,3 +203,10 @@[m [mclass RaphaelVoiceOutput(VoiceOutput):[m
+             self._sink.stop()[m
+         except Exception:[m
+             pass[m
+[41m+[m
+[41m+[m
+[41m+[m
+[41m+[m
+[41m+[m
+[41m+[m
+[41m+[m
+warning: in the working copy of 'hud_prototype.html', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/hud_prototype.html b/hud_prototype.html[m
+[1mindex 5550f1e..2269f36 100644[m
+[1m--- a/hud_prototype.html[m
+[1m+++ b/hud_prototype.html[m
+[36m@@ -1,4 +1,4 @@[m
+[31m-<!doctype html>[m
+[32m+[m[32m﻿<!doctype html>[m
+ <html>[m
+ <head>[m
+ <meta charset="utf-8">[m
+[36m@@ -79,7 +79,7 @@[m
+     max-width: 82vw;[m
+     font-family: 'Segoe UI', 'Trebuchet MS', 'Verdana', sans-serif;[m
+     font-weight: 600;[m
+[31m-    font-size: clamp(24px, 4.2vw, 56px);[m
+[32m+[m[32m    font-size: clamp(48px, 6vw, 84px);[m
+     line-height: 1.35;[m
+     text-align: center;[m
+     color: #ffffff;[m
+[36m@@ -145,7 +145,7 @@[m
+   #bar-caption-text {[m
+     max-width: 78vw;[m
+     font-family: Consolas, monospace;[m
+[31m-    font-size: clamp(20px, 3.2vw, 42px);[m
+[32m+[m[32m    font-size: clamp(42px, 5.5vw, 72px);[m
+     line-height: 1.5;[m
+     color: #ffffff;[m
+     text-align: center;[m
+[36m@@ -1179,8 +1179,8 @@[m
+     margin-top: 3px; font-size: 10px; letter-spacing: 0.1em;[m
+     opacity: 0.45;[m
+   }[m
+[31m-  #chat-model-provider:not(:empty)::before { content: " · "; }[m
+[31m-  #chat-mode-badge:not(:empty)::before { content: " · "; }[m
+[32m+[m[32m  #chat-model-provider:not(:empty)::before { content: " Â· "; }[m
+[32m+[m[32m  #chat-mode-badge:not(:empty)::before { content: " Â· "; }[m
+ [m
+ [m
+ [m
+[36m@@ -1699,16 +1699,16 @@[m [mbody.mini:hover #mini-exit { opacity: 1; }[m
+ <div id="core-pole"></div>[m
+ [m
+ <div id="caption-box">[m
+[31m-  <button class="caption-close-btn" title="Dismiss">✕</button>[m
+[32m+[m[32m  <button class="caption-close-btn" title="Dismiss">âœ•</button>[m
+   <div id="caption-text"></div>[m
+ </div>[m
+ <div id="cinematic-caption">[m
+[31m-  <button class="caption-close-btn" title="Dismiss">✕</button>[m
+[32m+[m[32m  <button class="caption-close-btn" title="Dismiss">âœ•</button>[m
+   <div id="cinematic-caption-text"></div>[m
+ </div>[m
+ <div id="bar-caption">[m
+   <div id="bar-caption-frame">[m
+[31m-    <button class="caption-close-btn" title="Dismiss">✕</button>[m
+[32m+[m[32m    <button class="caption-close-btn" title="Dismiss">âœ•</button>[m
+     <div id="bar-caption-text"></div>[m
+   </div>[m
+ </div>[m
+[36m@@ -1806,7 +1806,7 @@[m [mbody.mini:hover #mini-exit { opacity: 1; }[m
+ [m
+ <div id="center-panel-overlay">[m
+   <div id="center-panel-frame">[m
+[31m-    <button id="center-panel-close" title="Close">✕</button>[m
+[32m+[m[32m    <button id="center-panel-close" title="Close">âœ•</button>[m
+     <!-- Its own element purely to carry the fisheye clip: the frame's[m
+          clip-path is already driving the open/close bar animation and[m
+          #center-panel's is driving the glitch-in reveal, and an element[m
+[36m@@ -5235,7 +5235,7 @@[m [mconst MINI_CHAT_PAD = 3;[m
+ [m
+   document.getElementById('btn-speak').addEventListener('click', () => {[m
+     const file = VOICE_LINE_FILES[Math.floor(Math.random() * VOICE_LINE_FILES.length)];[m
+[31m-    showCaption('▶ ' + prettifyVoiceLineName(file));[m
+[32m+[m[32m    showCaption('â–¶ ' + prettifyVoiceLineName(file));[m
+     if (sfxToggle.checked) {[m
+       audioCtx.resume();[m
+       voiceLineAudio.onended = null; // clear any stale handler from a real reply's playServerAudio call[m
+[36m@@ -5577,11 +5577,11 @@[m [mconst MINI_CHAT_PAD = 3;[m
+           el.className = 'setting-hint warn';[m
+           el.textContent = comboLabel(msg.failed) + ' is already used by another '[m
+             + 'application, so it was not changed. Still using '[m
+[31m-            + comboLabel(msg.binding) + ' — pick a different key.';[m
+[32m+[m[32m            + comboLabel(msg.binding) + ' â€” pick a different key.';[m
+         } else if (!msg.active) {[m
+           el.className = 'setting-hint warn';[m
+           el.textContent = comboLabel(msg.binding || '') + ' could not be registered '[m
+[31m-            + '— another application already uses it. Pick a different key.';[m
+[32m+[m[32m            + 'â€” another application already uses it. Pick a different key.';[m
+         } else {[m
+           el.className = 'setting-hint';[m
+           el.textContent = comboLabel(msg.binding) + ' is active.';[m
+[36m@@ -5702,7 +5702,7 @@[m [mconst MINI_CHAT_PAD = 3;[m
+     ensureActiveTopic();[m
+     const topic = currentTopic();[m
+     if (topic.title === 'New chat') {[m
+[31m-      topic.title = text.length > 40 ? text.slice(0, 40) + '…' : text;[m
+[32m+[m[32m      topic.title = text.length > 40 ? text.slice(0, 40) + 'â€¦' : text;[m
+     }[m
+     topic.messages.push({ role: 'user', text });[m
+     topic.updated = Date.now();[m
+[36m@@ -5899,7 +5899,7 @@[m [mconst MINI_CHAT_PAD = 3;[m
+     ensureActiveTopic();[m
+     const topic = currentTopic();[m
+     if (topic.title === 'New chat') {[m
+[31m-      topic.title = text.length > 40 ? text.slice(0, 40) + '…' : text;[m
+[32m+[m[32m      topic.title = text.length > 40 ? text.slice(0, 40) + 'â€¦' : text;[m
+     }[m
+     topic.messages.push({ role: 'user', text });[m
+     topic.updated = Date.now();[m
+[36m@@ -8116,7 +8116,7 @@[m [mconst MINI_CHAT_PAD = 3;[m
+         const previewBtn = document.createElement('button');[m
+         previewBtn.type = 'button';[m
+         previewBtn.className = 'voice-line-preview-btn';[m
+[31m-        previewBtn.textContent = '▶';[m
+[32m+[m[32m        previewBtn.textContent = 'â–¶';[m
+         previewBtn.title = 'Preview the recorded clip';[m
+         previewBtn.addEventListener('click', (e) => {[m
+           e.preventDefault(); // don't toggle the checkbox via label click-through[m
+[36m@@ -9232,3 +9232,5 @@[m [mconst MINI_CHAT_PAD = 3;[m
+ </script>[m
+ </body>[m
+ </html>[m
+[41m+[m
+[41m+[m
