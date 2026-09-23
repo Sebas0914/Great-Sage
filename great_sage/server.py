@@ -1408,3 +1408,342 @@ async def run_server(engine, voice) -> None:
                         saved = hud_settings.load(settings.HUD_SETTINGS_PATH)
                         saved["voice_line_set"] = name
                         hud_settings.save(settings.HUD_SETTINGS_PATH, saved)
+                        log.info("Voice line set switched to %r (%d clips)",
+                                 name, len(voice.voice_lines))
+                        # The HUD's toggle list is per-set, so it has to
+                        # be redrawn from the new set rather than left
+                        # showing the old one's rows.
+                        if hasattr(voice, "list_voice_lines"):
+                            try:
+                                await websocket.send(json.dumps({
+                                    "type": "voice_lines",
+                                    "lines": voice.list_voice_lines(),
+                                    "set": name,
+                                    "sets": sorted(sets.keys()),
+                                }))
+                            except websockets.exceptions.ConnectionClosed:
+                                pass
+                elif msg_type == "reset_chat":
+                    log.info("Resetting chat history")
+                    engine.reset()
+                elif msg_type == "set_reference_voice":
+                    voice_id = data.get("id")
+                    if voice_id and voice is not None and hasattr(voice, "set_reference_audio"):
+                        match = next(
+                            (v for v in _list_candidate_voices(None) if v["id"] == voice_id),
+                            None,
+                        )
+                        if match is None:
+                            log.warning("Unknown candidate voice id: %r", voice_id)
+                        else:
+                            try:
+                                voice.set_reference_audio(match["file"])
+                                hud_settings.save_active_voice(settings.HUD_SETTINGS_PATH, voice_id)
+                                log.info("Switched active voice to %r", voice_id)
+                            except VoiceError as exc:
+                                log.exception("Could not switch to voice %r", voice_id)
+                                try:
+                                    await websocket.send(json.dumps({"type": "error", "message": str(exc)}))
+                                except websockets.exceptions.ConnectionClosed:
+                                    pass
+                elif msg_type == "save_ai_settings":
+                    # Keys arrive here and are written straight to the
+                    # secrets file. They are never logged, and only the
+                    # MASKED view is ever sent back - a saved key can be
+                    # replaced from the UI but not read out of it.
+                    try:
+                        current = ai_settings.load(settings.AI_SETTINGS_PATH)
+                        merged = ai_settings.apply_update(
+                            current, data.get("settings") or {})
+                        ai_settings.save(settings.AI_SETTINGS_PATH, merged)
+                        _apply_provider(engine, merged)
+                        _m = _apply_mode(engine, merged)
+                        await websocket.send(json.dumps({
+                            "type": "mode", "mode": _m.name,
+                            "label": _m.label, "hud_fps": _m.hud_fps,
+                            "wake_word": _m.wake_word,
+                            "description": _m.description}))
+                        log.info("AI settings saved (provider=%s, tts=%s, "
+                                 "keys set: %s)",
+                                 merged.get("chat_provider"),
+                                 merged.get("tts_provider"),
+                                 sorted(merged.get("keys", {}).keys()))
+                        await websocket.send(json.dumps({
+                            "type": "ai_settings",
+                            "settings": ai_settings.public_view(merged)}))
+                        await websocket.send(json.dumps({
+                            "type": "model_info",
+                            "model": getattr(engine.provider, "model", "?"),
+                            "provider": getattr(engine, "provider_label",
+                                                "Ollama / Local")}))
+                    except Exception:
+                        log.exception("Could not save AI settings")
+                elif msg_type == "set_model":
+                    # Great Sage's identity does not change with the model
+                    # (spec S6) - only the brain underneath does, so this
+                    # swaps the provider's model and leaves history, memory,
+                    # persona and tools exactly as they were.
+                    want = str(data.get("model") or "").strip()
+                    if want and want in _installed_models():
+                        engine.provider.model = want
+                        log.info("Model switched to %s", want)
+                        await websocket.send(json.dumps({
+                            "type": "model_info", "model": want,
+                            "provider": "Ollama / Local",
+                            "available": _installed_models()}))
+                    else:
+                        log.warning("Refused model switch to %r", want)
+                elif msg_type == "suggest_title":
+                    def _title(payload=data):
+                        t = _suggest_title(engine.provider,
+                                           payload.get("messages"))
+                        if not t:
+                            return
+                        asyncio.run_coroutine_threadsafe(
+                            websocket.send(json.dumps(
+                                {"type": "chat_title", "id": payload.get("id"),
+                                 "title": t})), loop)
+                    threading.Thread(target=_title, daemon=True).start()
+                elif msg_type in ("summarize_chat", "remember_chat"):
+                    # Both need the model, so they run off the event loop
+                    # for the same reason _handle_chat does.
+                    def _run(kind=msg_type, payload=data):
+                        title = str(payload.get("title") or "this chat")
+                        msgs = payload.get("messages")
+                        try:
+                            if kind == "summarize_chat":
+                                out = _summarise_chat(engine.provider, title, msgs)
+                                note = out or "Nothing to summarise yet."
+                            else:
+                                out = _chat_takeaway(engine.provider, title, msgs)
+                                if out:
+                                    memory.save_facts(
+                                        settings.MEMORY_FILE_PATH,
+                                        [l.strip() for l in out.splitlines() if l.strip()],
+                                        settings.MEMORY_MAX_FACTS)
+                                    note = "Remembered:\n" + out
+                                else:
+                                    note = "Nothing here was worth keeping."
+                        except Exception as exc:
+                            log.exception("%s failed", kind)
+                            note = f"Could not complete that: {exc}"
+                        payload_out = json.dumps({
+                            "type": "chat_action_result", "action": kind,
+                            "id": payload.get("id"), "text": note})
+                        asyncio.run_coroutine_threadsafe(
+                            websocket.send(payload_out), loop)
+                    threading.Thread(target=_run, daemon=True).start()
+                elif msg_type in ("list_memory", "delete_memory",
+                                  "clear_memory"):
+                    # The memory manager (spec S46). Deletion rewrites the
+                    # file rather than appending, so it goes through
+                    # memory.write_facts, and the client is always sent the
+                    # resulting list rather than trusting its own copy.
+                    try:
+                        facts = memory.load_memory(settings.MEMORY_FILE_PATH)
+                        if msg_type == "delete_memory":
+                            target = str(data.get("fact", ""))
+                            facts = [f for f in facts if f != target]
+                            memory.write_facts(settings.MEMORY_FILE_PATH, facts)
+                            log.info("Memory: deleted 1 fact, %d remain",
+                                     len(facts))
+                        elif msg_type == "clear_memory":
+                            memory.write_facts(settings.MEMORY_FILE_PATH, [])
+                            facts = []
+                            log.info("Memory: cleared")
+                        await websocket.send(json.dumps(
+                            {"type": "memory", "facts": facts}))
+                    except websockets.exceptions.ConnectionClosed:
+                        pass
+                    except Exception:
+                        log.exception("%s failed", msg_type)
+                elif msg_type == "save_chats":
+                    # Whole-list save; see core/chat_store.py for why.
+                    try:
+                        n = chat_store.save(settings.CHAT_STORE_PATH,
+                                            data.get("chats"))
+                        log.debug("Saved %d chat(s)", n)
+                        # Tell every OTHER window, so all of them hold the
+                        # same list. Marked as a sync so they update the
+                        # sidebar without dropping whichever conversation
+                        # is open in front of the user.
+                        payload = json.dumps({
+                            "type": "chats",
+                            "chats": chat_store.load(settings.CHAT_STORE_PATH),
+                            "sync": True})
+                        for other in list(all_clients):
+                            if other is websocket:
+                                continue
+                            try:
+                                await other.send(payload)
+                            except Exception:
+                                pass
+                    except Exception:
+                        log.exception("Could not save chats")
+                elif msg_type == "save_settings":
+                    blob = data.get("settings")
+                    if isinstance(blob, dict):
+                        hud_settings.save_hud_settings(settings.HUD_SETTINGS_PATH, blob)
+                        # The push-to-talk key IS the global one, so a
+                        # change here re-registers it immediately rather
+                        # than at the next launch.
+                        combo = blob.get("ptt-combo")
+                        if _hotkey is not None and isinstance(combo, str) and combo:
+                            ok = _hotkey.rebind(combo)
+                            if ok:
+                                log.info("Voice key is now %s "
+                                         "(works from any window)", combo)
+                            # Either way the panel is told what is actually
+                            # registered, which after a failed rebind is the
+                            # PREVIOUS key - global_hotkey puts it back
+                            # rather than leaving no working key at all.
+                            await websocket.send(json.dumps({
+                                "type": "hotkey_status",
+                                "binding": _hotkey.binding,
+                                "active": bool(_hotkey.active),
+                                "failed": None if ok else combo,
+                            }))
+                elif msg_type == "hello":
+                    # Which window this connection belongs to. Only the
+                    # main HUD is a destination for a voice reply; a
+                    # settings or history panel must never take it, and
+                    # the standalone overlay has its own.
+                    role = str(data.get("role") or "?")[:40]
+                    log.info("Client is the %s", role)
+                    if role in ("hud", "overlay"):
+                        voice_clients[websocket] = (role, sink)
+                        _claim_voice_route(websocket, sink)
+                elif msg_type == "sfx_ready":
+                    got = int(data.get("loaded") or 0)
+                    tot = int(data.get("total") or 0)
+                    if got == tot:
+                        log.info("Interface sounds ready (%d/%d)", got, tot)
+                    else:
+                        log.error("Only %d of %d interface sounds loaded - "
+                                  "the rest are silent", got, tot)
+                elif msg_type == "page_error":
+                    # An exception inside the page. Invisible until now:
+                    # the window just sat there wrong while this side
+                    # logged a completely healthy startup.
+                    log.error("PAGE ERROR: %s | %s",
+                              str(data.get("what"))[:200],
+                              str(data.get("detail"))[:600])
+                elif msg_type == "chat":
+                    active_connection["websocket"] = websocket
+                    active_connection["sink"] = sink
+                    if voice is not None:
+                        voice.set_sink(sink)
+                        _apply_voice_provider(voice)
+                    # Attached images ride with this turn only. The
+                    # vision model is the same qwen3.5:4b already loaded,
+                    # so this costs no extra VRAM - verified by handing
+                    # it a screenshot, which it read correctly.
+                    imgs = data.get("images")
+                    if imgs and hasattr(engine, "attach_images"):
+                        engine.attach_images(imgs)
+                        log.info("Chat turn carries %d image(s)", len(imgs))
+                    _start_chat_thread(data.get("text", ""), engine,
+                                       voice, sink, websocket, loop,
+                                       think=bool(data.get("think")))
+                elif msg_type == "audio_ended":
+                    sink.notify_audio_ended()
+                elif msg_type == "ptt_start":
+                    active_connection["websocket"] = websocket
+                    active_connection["sink"] = sink
+                    ptt_recorder.start()
+                elif msg_type == "ptt_stop":
+                    # stop() blocks on local transcription (faster-whisper) -
+                    # runs in its own thread so the event loop stays free,
+                    # same reasoning as _handle_chat's own background thread.
+                    threading.Thread(target=_log_exceptions(
+                        ptt_recorder.stop, "push-to-talk transcription"),
+                        daemon=True).start()
+                elif msg_type == "set_wake_word_enabled":
+                    enabled = bool(data.get("enabled"))
+                    saved = hud_settings.load(settings.HUD_SETTINGS_PATH)
+                    saved["wake_word_enabled"] = enabled
+                    hud_settings.save(settings.HUD_SETTINGS_PATH, saved)
+                    if enabled:
+                        wake_word_listener.start()
+                        log.info("Wake-word listener enabled")
+                    else:
+                        wake_word_listener.stop()
+                        log.info("Wake-word listener disabled")
+                elif msg_type == "set_wake_words":
+                    phrases = data.get("phrases")
+                    if isinstance(phrases, list):
+                        cleaned = [str(p).strip() for p in phrases if str(p).strip()]
+                        saved = hud_settings.load(settings.HUD_SETTINGS_PATH)
+                        saved["wake_words"] = cleaned
+                        hud_settings.save(settings.HUD_SETTINGS_PATH, saved)
+                        log.info("Wake words updated: %r", cleaned)
+                elif msg_type == "preview_voice_fx":
+                    # Runs a candidate's preview clip through the REAL
+                    # effect chain and ships the result back, so what you
+                    # hear while dialling the sliders is exactly what the
+                    # voice will sound like - not a browser-side
+                    # approximation that would drift from the actual DSP.
+                    #
+                    # Sent as its own message type rather than the normal
+                    # "audio" one: that path expects an "audio_ended" ack
+                    # to unblock a waiting speak(), and a preview has no
+                    # such waiter.
+                    if voice is not None and hasattr(voice, "fx"):
+                        clip = _preview_clip_path(data.get("id"), voice)
+                        if clip:
+                            try:
+                                await websocket.send(json.dumps({
+                                    "type": "fx_preview_audio",
+                                    "mime": "audio/wav",
+                                    "data": _render_fx_preview(clip, voice),
+                                }))
+                            except websockets.exceptions.ConnectionClosed:
+                                pass
+                            except Exception:
+                                log.exception("Could not render the FX preview")
+                elif msg_type == "set_voice_fx":
+                    params = data.get("fx")
+                    if isinstance(params, dict) and voice is not None and hasattr(voice, "set_fx"):
+                        # Floats/bools straight off the HUD's sliders; the
+                        # engine ignores any key it doesn't recognise.
+                        voice.set_fx(**params)
+                        saved = hud_settings.load(settings.HUD_SETTINGS_PATH)
+                        saved["voice_fx"] = params
+                        hud_settings.save(settings.HUD_SETTINGS_PATH, saved)
+                elif msg_type == "set_mic_device":
+                    index = data.get("index")
+                    ptt_recorder.device = index
+                    wake_word_listener.device = index
+                    # The listener only reads .device when it opens its
+                    # InputStream, at the start of its (long-running) loop -
+                    # restart it so a change takes effect immediately rather
+                    # than only on the next manual toggle.
+                    if wake_word_listener.running:
+                        wake_word_listener.stop()
+                        wake_word_listener.start()
+                    saved = hud_settings.load(settings.HUD_SETTINGS_PATH)
+                    saved["mic_device"] = index
+                    hud_settings.save(settings.HUD_SETTINGS_PATH, saved)
+                    log.info("Mic device set to %r", index)
+        finally:
+            log.info("Client disconnected")
+            if is_log_subscriber:
+                log_handler.remove_client(websocket)
+            # Holding a dead socket here would send every later voice
+            # message into a closed connection instead of to whichever
+            # window is still open.
+            all_clients.discard(websocket)
+            _release_voice_route(websocket)
+            # Unblock anything still waiting on an ack from this connection
+            # rather than leaving a background thread hung forever.
+            sink.notify_audio_ended()
+
+    # max_size: the websockets default is 1MB per frame, and an attached
+    # image is one frame. A single desktop screenshot is ~0.3MB, so ONE
+    # is fine and FOUR is not - the connection would close with a 1009
+    # and the message would simply vanish, with the page reconnecting as
+    # if nothing had been sent. Raised well clear of that; the real bound
+    # on image size is applied in the page before sending.
+    async with websockets.serve(handler, HOST, PORT, max_size=16 * 1024 * 1024):
+        log.info("WebSocket bridge listening on ws://%s:%s", HOST, PORT)
+        await asyncio.Future()  # run until the process exits
