@@ -38,7 +38,7 @@ def transcribe(audio: np.ndarray) -> str:
         log.warning("Transcription skipped: empty recording")
         return ""
     model = _get_model()
-    segments, _ = model.transcribe(audio, language=None, vad_filter=True)
+    segments, _ = model.transcribe(audio, language="es", vad_filter=True)
     text = "".join(seg.text for seg in segments).strip()
 
     # Log the result so push-to-talk failures are visible in packaged builds.
