@@ -689,42 +689,41 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
                       "result": str(_res)[:400]})
             pre_images = tool_layer.take_pending_images() if pre_results else []
 
-            # AN ACTION THAT WORKED NEEDS NO COMMENTARY, AND NO SECOND
-            # OPINION.
+            # A successful action must not be fed back into the model:
+            # doing so makes the model reinterpret the original command and
+            # can produce extra actions or invented details.  But silently
+            # returning also makes a spoken command look "filtered" to Master:
+            # the action happens while Raphael and the HUD say nothing.
             #
-            # Asked to search YouTube for "that time I got reincarnated as
-            # a slime season 4 opening called tactic", the model searched
-            # for "Reincarnated as a Slime Season 1 Episode 4 Tactic Play"
-            # - a season and an episode Master never said - and then opened
-            # Crunchyroll off its own bat. Handing it the turn after the
-            # pre-route has already done the thing invites exactly that:
-            # it re-reads the request, decides what was really meant, and
-            # acts again.
-            #
-            # So when the pre-route ran ACTIONS and they all worked, the
-            # turn is over. The page opened, the app launched; there is
-            # nothing to add, and Krazaa asked not to be told about it.
-            #
-            # Only for actions. A question that was pre-routed - the time,
-            # free space, a web search - still needs the model to answer
-            # it, because the answer IS the reply.
+            # Give the user a short deterministic acknowledgement instead.
+            # It is deliberately generated from the tool names only, never
+            # from the original command or an internal prompt, so it cannot
+            # accidentally speak the user's command back or expose tool
+            # arguments.  This keeps the normal reply/speech/subtitle path.
             if (pre_results
                     and all(n in ACTION_TOOLS for n, _ in pre_results)
                     and not any(str(r).startswith("FAILED")
                                 for _, r in pre_results)):
-                log.info("Pre-routed action(s) done (%s) - no reply needed",
-                         ", ".join(n for n, _ in pre_results))
+                names = [n for n, _ in pre_results]
+                ack = "Hecho."
+                if len(names) > 1:
+                    ack = "Hecho. Acciones completadas."
+                log.info("Pre-routed action(s) done (%s) - speaking acknowledgement",
+                         ", ".join(names))
                 timer.first_token()
                 timer.text_done()
+                send({"type": "reply_chunk", "text": ack})
+                send({"type": "reply_done", "text": ack})
+                if voice is not None and voice.current_sink is sink:
+                    try:
+                        voice.speak(ack)
+                    except VoiceError as exc:
+                        log.exception("Voice/audio error speaking action acknowledgement")
+                        try:
+                            send({"type": "error", "message": str(exc)})
+                        except websockets.exceptions.ConnectionClosed:
+                            pass
                 timer.finish()
-                send({"type": "reply_done", "text": ""})
-                # speaking_done EXPLICITLY. The one at the end of this
-                # function is in a finally that belongs to the SPEAKING
-                # try, further down - returning from here never reaches
-                # it, and the page waits on that message to leave the
-                # thinking state. Without this the scene sat at the low
-                # frame cap with the bed looping, having done the thing
-                # perfectly.
                 send({"type": "speaking_done"})
                 return
 
