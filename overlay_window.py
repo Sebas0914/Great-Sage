@@ -224,7 +224,11 @@ class OverlayView(QWebEngineView):
                 self._placed = True
                 place_top_right(self, self.width())
             self.show()
-              # WS_BORDER disabled for transparent overlay
+            # Apply the native border style after Qt has shown the
+            # translucent WebEngine window. Windows otherwise puts the
+            # frameless ANGLE surface on a less stable compositing path,
+            # which can present as rapid flashing on modern Qt/PySide6.
+            _apply_ws_border(self)
             self._install_mouse_filter()
             return
         if title.strip().startswith(OPEN_PANEL_PREFIX):
