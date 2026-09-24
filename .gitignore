@@ -1,4 +1,9 @@
-﻿.venv/
+﻿.overlay-venv/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.venv/
 .overlay-venv/
 __pycache__/
 *.pyc
