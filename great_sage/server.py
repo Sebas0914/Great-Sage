@@ -683,10 +683,22 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
             except websockets.exceptions.ConnectionClosed:
                 pass
 
+        # Specialist work is API-first when configured. Conversation stays
+        # on the fast local provider unless the user explicitly selects
+        # another chat provider. The worker itself owns the offline retry.
+        cfg = ai_settings.load(settings.AI_SETTINGS_PATH)
+        local_worker = getattr(engine, "_local_provider", None)
+        if local_worker is None:
+            local_worker = engine.provider
+        specialist_provider, specialist_label = (
+            ai_settings.build_specialized_provider(cfg, local_worker)
+        )
         job = _WORKER.submit(
             text,
             route.kind or "general",
             on_event=_worker_event,
+            provider=specialist_provider,
+            provider_label=specialist_label,
         )
         if job is None:
             busy = "Ya hay un trabajo en segundo plano. Termino ese primero."
