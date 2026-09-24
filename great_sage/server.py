@@ -922,12 +922,14 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
                 text,
             )
         elif getattr(settings, "VOICE_ENGINE", "").lower() == "raphael":
-            # Raphael's translation bridge and RVC conversion are both slow.
-            # Detach the entire voice pipeline so the response timer and HUD
-            # completion are not held hostage by audio generation.
+            # Raphael runs asynchronously. It owns the speaking_done signal;
+            # do NOT let this handler emit an early speaking_done in finally,
+            # otherwise the HUD thinks audio is finished before RVC starts.
             _speak_raphael_background(
                 voice, spoken_text, sink, websocket, loop
             )
+            timer.finish()
+            return
         else:
             # Fallback for a voice engine without speak_stream (Pocket TTS):
             # unchanged behaviour, speech after the full reply.
