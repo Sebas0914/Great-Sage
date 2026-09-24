@@ -232,6 +232,8 @@ def _translate_for_raphael(text: str, provider=None) -> str:
     fixed = {
         "Hecho.": "完了しました。",
         "Hecho. Acciones completadas.": "完了しました。すべての操作が完了しました。",
+        "Entendido. Me encargo de esa tarea en segundo plano.": "承知しました。その作業をバックグラウンドで進めます。",
+        "Ya hay un trabajo en segundo plano. Termino ese primero.": "すでにバックグラウンド作業が実行中です。まずそちらを完了します。",
     }
     if spoken in fixed:
         return fixed[spoken]
