@@ -173,10 +173,10 @@ def _classify_sentence(norm: str) -> Route:
         return Route("heavy", "docx", "redactar", "documents", True)
 
     if _CODE.search(norm) or _CODE_PROGRAM.search(norm):
-        return Route("heavy", "general", "codigo", "coding", True)
+        return Route("heavy", "coding", "codigo", "coding", True)
 
     if (strong and _ANALYSIS.search(norm)) or _DEEP_IMPERATIVE.search(norm):
-        return Route("heavy", "general", "analisis", "research", True)
+        return Route("heavy", "research", "analisis", "research", True)
 
     return SIMPLE
 
@@ -194,5 +194,5 @@ def classify(text: str) -> Route:
         if route.is_heavy:
             return route
     if len(_norm(text)) >= _LONG_INPUT_CHARS:
-        return Route("heavy", "general", "texto largo", "documents", True)
+        return Route("heavy", "research", "texto largo", "research", True)
     return SIMPLE
