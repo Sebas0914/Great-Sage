@@ -68,7 +68,11 @@ def load(path: str) -> Dict[str, Any]:
     data = dict(DEFAULTS)
     data["keys"] = {}
     try:
-        with open(path, "r", encoding="utf-8") as fh:
+        # Windows editors (and some older Python tooling) may save this JSON
+        # with an UTF-8 BOM. json.load() with plain utf-8 rejects that BOM,
+        # which previously forced Great Sage back to defaults on every client
+        # connection.
+        with open(path, "r", encoding="utf-8-sig") as fh:
             stored = json.load(fh)
         if isinstance(stored, dict):
             for k, v in stored.items():
