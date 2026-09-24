@@ -681,6 +681,20 @@ def main() -> int:
         on_session_boundary=build_memory_callback(provider),
         recall=build_recall(provider),
     )
+
+    # Warm the resident conversational brain before the HUD accepts speech.
+    # The first local request used to pay the full Ollama model-load cost,
+    # which is exactly what showed up as ~40s before first_token. This is a
+    # one-time startup cost instead of a surprise cost on the first phrase.
+    try:
+        warm_start = time.monotonic()
+        provider.send_fast_message([
+            {"role": "user", "content": "Respond with OK."}
+        ])
+        log.info("Local chat model warmed in %.2fs", time.monotonic() - warm_start)
+    except ModelProviderError as exc:
+        log.warning("Could not warm local chat model: %s", exc)
+
     voice = _build_voice(provider)
 
     _start_server_thread(engine, voice)
