@@ -35,6 +35,11 @@ TTS_PROVIDERS = ("f5", "elevenlabs", "openai")
 DEFAULTS: Dict[str, Any] = {
     "chat_provider": "local",
     "chat_model": "",
+    # Specialized agents prefer configured API providers when online.
+    # If unavailable, the worker automatically falls back to the local model.
+    "specialized_provider": "nvidia",
+    "specialized_model": "",
+    "online_first": True,
     "tts_provider": "f5",
     "keys": {},
     # Tool permissions (spec S24). Off by default for anything that
@@ -140,10 +145,11 @@ def apply_update(data: Dict[str, Any], update: Dict[str, Any]) -> Dict[str, Any]
     would overwrite a real key with asterisks. Clearing is explicit, via
     clear_keys.
     """
-    for field in ("chat_provider", "chat_model", "tts_provider", "mode"):
+    for field in ("chat_provider", "chat_model", "specialized_provider",
+                  "specialized_model", "tts_provider", "mode"):
         if field in update and isinstance(update[field], str):
             data[field] = update[field]
-    for field in ("allow_web", "allow_desktop", "auto_gaming"):
+    for field in ("allow_web", "allow_desktop", "auto_gaming", "online_first"):
         if field in update:
             data[field] = bool(update[field])
     incoming = update.get("keys")
@@ -171,6 +177,48 @@ def web_allowed(data) -> bool:
     if not (data or {}).get("allow_web"):
         return False
     return _modes.get((data or {}).get("mode")).allow_web
+
+def build_specialized_provider(data, fallback):
+    """Build the provider used by coding/document/research agents.
+
+    The normal conversation provider remains independent. This lets Great
+    Sage keep the fast local brain for conversation while specialized work
+    uses an API key when configured. A missing key, private mode, import
+    error, or later network failure is handled by the caller's local
+    fallback.
+    """
+    cfg = data or {}
+    if not cfg.get("online_first", True):
+        return fallback, "Ollama / Local (online-first disabled)"
+    from great_sage.core import modes as _modes
+    if not _modes.get(cfg.get("mode")).allow_online:
+        return fallback, "Ollama / Local (private)"
+    want = (cfg.get("specialized_provider") or "").strip().lower()
+    key = (cfg.get("keys") or {}).get(want, "").strip()
+    if want not in ("anthropic", "openai", "nvidia") or not key:
+        return fallback, "Ollama / Local"
+    model = cfg.get("specialized_model") or ""
+    try:
+        if want == "anthropic":
+            from great_sage.models.anthropic_provider import AnthropicProvider
+            return AnthropicProvider(api_key=key, model=model), "Anthropic / Online"
+        if want == "openai":
+            from great_sage.models.openai_provider import OpenAIProvider
+            return OpenAIProvider(api_key=key, model=model), "OpenAI / Online"
+        from great_sage.models.openai_provider import OpenAIProvider
+        return (
+            OpenAIProvider(
+                api_key=key,
+                model=model,
+                base_url="https://integrate.api.nvidia.com/v1/chat/completions",
+                provider_name="NVIDIA",
+            ),
+            "NVIDIA / Online",
+        )
+    except Exception:
+        log.exception("Could not start specialized provider; staying local")
+        return fallback, "Ollama / Local"
+
 
 
 def build_provider(data, fallback):
