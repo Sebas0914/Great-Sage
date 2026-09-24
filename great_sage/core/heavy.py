@@ -127,8 +127,10 @@ def build_provider():
     # The voice model's keep-alive (2 min) would leave this one resident
     # while the voice model tries to reload into the same 4 GB.
     provider.keep_alive = getattr(settings, "HEAVY_KEEP_ALIVE_SECONDS", 0)
-    # Long outputs: leave room for the whole document.
-    provider.base_num_ctx = 12288
+    # Qwen3 8B is substantially larger than the old 4B worker. On this
+    # machine, 12K context adds unnecessary memory pressure, so keep the
+    # worker at a useful 6K window until we have a real large-RAM target.
+    provider.base_num_ctx = 6144
     return provider
 
 
