@@ -1671,6 +1671,59 @@ body.mini.pet-state-confused #canvas-wrap { animation: gs-pet-confused 720ms eas
   60% { transform: rotate(-1.5deg) translateX(-2px); }
   80% { transform: rotate(1.5deg) translateX(2px); }
 }
+
+  /* Background worker status. Independent from the chat transcript so a
+     long Qwen3 job can report progress while the fast agent keeps chatting. */
+  #worker-status-card {
+    position: fixed;
+    left: 22px;
+    bottom: 22px;
+    width: min(420px, calc(100vw - 44px));
+    max-height: 34vh;
+    overflow: auto;
+    z-index: 120;
+    display: none;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 14px;
+    background: rgba(18, 20, 24, .88);
+    color: #fff;
+    font-family: Consolas, monospace;
+    box-shadow: 0 10px 32px rgba(0,0,0,.32);
+    backdrop-filter: blur(10px);
+  }
+  #worker-status-card.show { display: block; }
+  #worker-status-card .worker-title {
+    font-size: 13px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    opacity: .72;
+    margin-bottom: 8px;
+  }
+  #worker-status-card .worker-message {
+    font-size: 14px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  #worker-status-card .worker-output {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,.12);
+    font-size: 12px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    max-height: 220px;
+    overflow: auto;
+    opacity: .88;
+  }
+  #worker-status-card.worker-failed {
+    border-color: rgba(230, 120, 120, .5);
+  }
+  #worker-status-card.worker-finished {
+    border-color: rgba(150, 210, 170, .4);
+  }
 </style>
 </head>
 <body class="startup-snap startup-active startup-intro">
@@ -5429,7 +5482,9 @@ const MINI_CHAT_PAD = 3;
 
   function handleServerMessage(event) {
     const msg = JSON.parse(event.data);
-    if (msg.type === 'reply_chunk') {
+    if (msg.type === 'worker_update') {
+      showWorkerUpdate(msg);
+    } else if (msg.type === 'reply_chunk') {
       speechInProgress = true;
       replyBuffer += msg.text;
       if (captionFollowsSpeech) {
@@ -9285,6 +9340,53 @@ const MINI_CHAT_PAD = 3;
     }
     setInterval(() => apply(document.title), 120);
   })();
+
+  // ---------- background worker status ----------------------------
+  let workerStatusCard = null;
+  let workerStatusTimer = null;
+
+  function ensureWorkerStatusCard() {
+    if (workerStatusCard) return workerStatusCard;
+    workerStatusCard = document.createElement('div');
+    workerStatusCard.id = 'worker-status-card';
+    workerStatusCard.innerHTML =
+      '<div class="worker-title">Agente de trabajo</div>' +
+      '<div class="worker-message"></div>' +
+      '<div class="worker-output"></div>';
+    document.body.appendChild(workerStatusCard);
+    return workerStatusCard;
+  }
+
+  function showWorkerUpdate(msg) {
+    const card = ensureWorkerStatusCard();
+    const message = card.querySelector('.worker-message');
+    const output = card.querySelector('.worker-output');
+    const status = msg.status || 'progress';
+
+    card.classList.add('show');
+    card.classList.toggle('worker-failed', status === 'failed');
+    card.classList.toggle('worker-finished', status === 'finished');
+    message.textContent = msg.message || status;
+    output.textContent = '';
+
+    if (status === 'finished') {
+      const parts = [];
+      if (msg.path) parts.push('Archivo: ' + msg.path);
+      if (msg.text) parts.push(msg.text.slice(0, 1400));
+      output.textContent = parts.join('\n\n');
+      clearTimeout(workerStatusTimer);
+      workerStatusTimer = setTimeout(() => {
+        card.classList.remove('show');
+      }, 12000);
+    } else if (status === 'failed') {
+      clearTimeout(workerStatusTimer);
+      workerStatusTimer = setTimeout(() => {
+        card.classList.remove('show');
+      }, 12000);
+    } else {
+      clearTimeout(workerStatusTimer);
+    }
+  }
 </script>
 </body>
 </html>
