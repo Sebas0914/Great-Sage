@@ -1,6 +1,6 @@
-{
-  "chat_provider": "nvidia",
-  "chat_model": "openai/gpt-oss-20b",
+﻿{
+  "chat_provider": "local",
+  "chat_model": "",
   "tts_provider": "f5",
   "keys": {
     "nvidia": "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"
@@ -10,4 +10,6 @@
   "mode": "companion",
   "auto_gaming": true
 }
+
+
 

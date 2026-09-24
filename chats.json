@@ -495,6 +495,247 @@
      "text": "Notice. その発言は文脈が不明瞭で、正確な解釈が困難です。適切な回答を示すために、もう少し情報を提供してください。"
     }
    ]
+  },
+  {
+   "id": 1790202674358,
+   "title": "Hola, cómo estás?",
+   "created": 1790202674358,
+   "updated": 1790202985349,
+   "summary": "",
+   "titled": true,
+   "renamed": false,
+   "messages": [
+    {
+     "role": "user",
+     "text": "Hola, cómo estás?"
+    },
+    {
+     "role": "assistant",
+     "text": "Buenos días, Master. All faculties nominal."
+    },
+    {
+     "role": "user",
+     "text": "Puedes explicarme que el Linux."
+    },
+    {
+     "role": "assistant",
+     "text": "Notice. La premisa está incompleta; no es un lugar sino un sistema operativo basado en Unix desarrollado por la Comunidad Linux. Su arquitectura es monolítica y de código abierto, priorizando estabilidad sobre rendimiento extremo para servidores y estaciones de trabajo personales, lo que lo convierte en el estándar dominante del espacio informático al día de hoy."
+    }
+   ]
+  },
+  {
+   "id": 1790207390151,
+   "title": "Welcoming the Day",
+   "created": 1790207390151,
+   "updated": 1790207797128,
+   "summary": "",
+   "titled": true,
+   "renamed": false,
+   "messages": [
+    {
+     "role": "user",
+     "text": "Hola, ¿cómo estás?"
+    },
+    {
+     "role": "assistant",
+     "text": "Understood. El día comienza sin drama."
+    },
+    {
+     "role": "user",
+     "text": "¿Puedes explicarme a Cardinums?"
+    },
+    {
+     "role": "assistant",
+     "text": "Answer. Son plantas que brillan en sombra, adaptan sus flores al escaso sol y prosperan en suelos pobres, convirtiendo arrugas en destellos."
+    },
+    {
+     "role": "user",
+     "text": "Puedes abrir Word y hacer un documento sobre la energía renovable."
+    },
+    {
+     "role": "assistant",
+     "text": "Entendido. Me encargo de esa tarea en segundo plano."
+    }
+   ]
+  },
+  {
+   "id": 1790211209428,
+   "title": "Two Conversations Chat",
+   "created": 1790211209428,
+   "updated": 1790211252972,
+   "summary": "",
+   "titled": true,
+   "renamed": false,
+   "messages": [
+    {
+     "role": "user",
+     "text": "Hola, ¿cómo estás?"
+    },
+    {
+     "role": "assistant",
+     "text": "Unaño."
+    }
+   ]
+  },
+  {
+   "id": 1790214184489,
+   "title": "Great Sage Greeting",
+   "created": 1790214184489,
+   "updated": 1790214222289,
+   "summary": "",
+   "titled": true,
+   "renamed": false,
+   "messages": [
+    {
+     "role": "user",
+     "text": "Hola, ¿cómo estás?"
+    },
+    {
+     "role": "assistant",
+     "text": "Good morning, Master. You are fine."
+    }
+   ]
+  },
+  {
+   "id": 1790214246213,
+   "title": "Hello Sage Good",
+   "created": 1790214246213,
+   "updated": 1790215136397,
+   "summary": "",
+   "titled": true,
+   "renamed": false,
+   "messages": [
+    {
+     "role": "user",
+     "text": "Hola, ¿cómo estás?"
+    },
+    {
+     "role": "assistant",
+     "text": "Good morning, Master. You are fine."
+    },
+    {
+     "role": "user",
+     "text": "Abre Linux, por favor, no, perdón, abre Word."
+    },
+    {
+     "role": "action",
+     "text": "launched an application",
+     "tool": "open_application",
+     "result": "FAILED: No installed application matches 'Linux'. It is not in the Start Menu, so there is nothing to launch."
+    },
+    {
+     "role": "user",
+     "text": "No, dije que habrás gordo no linux."
+    },
+    {
+     "role": "assistant",
+     "text": "Apology. Unnecessary. This skill enables the opening of documents and files. Executing."
+    },
+    {
+     "role": "user",
+     "text": "Hola, eh"
+    },
+    {
+     "role": "assistant",
+     "text": "Understood. Executive."
+    }
+   ]
+  },
+  {
+   "id": 1790216566727,
+   "title": "Greeting Incomplete",
+   "created": 1790216566728,
+   "updated": 1790216613343,
+   "summary": "",
+   "titled": true,
+   "renamed": false,
+   "messages": [
+    {
+     "role": "user",
+     "text": "Hola, cómo estás?"
+    },
+    {
+     "role": "assistant",
+     "text": "Not yet acquired. Current knowledge is insufficient to answer that."
+    }
+   ]
+  },
+  {
+   "id": 1790216938748,
+   "title": "Master Greets Sage",
+   "created": 1790216938748,
+   "updated": 1790216982305,
+   "summary": "",
+   "titled": true,
+   "renamed": false,
+   "messages": [
+    {
+     "role": "user",
+     "text": "Hola, ¿cómo estás?"
+    },
+    {
+     "role": "assistant",
+     "text": "Good morning, Master. Status: nominal."
+    }
+   ]
+  },
+  {
+   "id": 1790217171414,
+   "title": "Master Greeting",
+   "created": 1790217171414,
+   "updated": 1790217351219,
+   "summary": "",
+   "titled": true,
+   "renamed": false,
+   "messages": [
+    {
+     "role": "user",
+     "text": "¡Hola! ¡Cómo estás!"
+    },
+    {
+     "role": "assistant",
+     "text": "Good morning, Master. All faculties nominal."
+    },
+    {
+     "role": "user",
+     "text": "Puedes abrir Word y hacer un documento sobre la energía renovable."
+    },
+    {
+     "role": "assistant",
+     "text": "Entendido. Me encargo de esa tarea en segundo plano."
+    },
+    {
+     "role": "user",
+     "text": "no pero yo te quiero viendo haciendo lo quiero cabras ahorita war y vayas escribiendo los párrafos"
+    }
+   ]
+  },
+  {
+   "id": 1790217708849,
+   "title": "Greeting Response",
+   "created": 1790217708849,
+   "updated": 1790217820775,
+   "summary": "",
+   "titled": true,
+   "renamed": false,
+   "messages": [
+    {
+     "role": "user",
+     "text": "Hola, cómo estás?"
+    },
+    {
+     "role": "assistant",
+     "text": "Answer. Calmo."
+    },
+    {
+     "role": "user",
+     "text": "quiero que abras por y escribas un documento sobre la energía renovable"
+    },
+    {
+     "role": "assistant",
+     "text": "Answer. Current capability is insufficient to perform that. That action has not been acquired. Report what would be required."
+    }
+   ]
   }
  ]
 }
