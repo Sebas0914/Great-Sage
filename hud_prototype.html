@@ -21,25 +21,34 @@
   canvas { display: block; }
 
 
-  /* Subtitle bar, now anchored near the top instead of the bottom.
-     --caption-opacity is the user's settings choice, applied directly by
-     the .show rule below; the move button/drag logic further down lets
-     it be repositioned anywhere. */
+  /* Standalone subtitles: centered at the bottom, independent of Sage.
+     Dark translucent panel, large white text, adaptive width and multiline.
+     This is deliberately NOT a worker-status card. */
   #caption-box {
     --caption-opacity: 1;
     position: fixed;
-    top: 13%; left: 50%;
+    left: 50%;
+    bottom: 7%;
+    top: auto;
     transform: translateX(-50%);
-    width: min(70%, 640px);
-    padding: 16px 26px;
-    border: 2px solid #ffffff;
+    width: min(78vw, 980px);
+    max-height: 22vh;
+    box-sizing: border-box;
+    padding: 14px 24px;
+    border: 0;
+    border-radius: 14px;
     color: #ffffff;
-    font-family: 'Consolas', monospace;
-    font-size: 24px;
-    line-height: 1.5;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: clamp(22px, 2vw, 32px);
+    font-weight: 500;
+    line-height: 1.35;
     text-align: center;
-    background: #000000;
+    background: rgba(35, 35, 35, 0.78);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    overflow-y: auto;
     opacity: 0;
+    z-index: 20;
   }
   /* Appears at full opacity immediately - the box itself no longer
      fades or unblurs in. The 700ms materialize used to run at the same
@@ -51,8 +60,10 @@
     filter: none;
   }
   #caption-box.caption-disabled { display: none; }
-  #caption-box.move-mode { cursor: grab; border-color: #9fa4a8; }
+  #caption-box.move-mode { cursor: grab; outline: 1px solid rgba(255,255,255,0.28); }
   #caption-box.move-mode.dragging { cursor: grabbing; }
+
+  #caption-box .caption-close-btn { display: none; }
 
   .caption-close-btn {
     position: absolute; top: 6px; right: 8px;
@@ -4674,7 +4685,7 @@ const MINI_CHAT_PAD = 3;
   // below actually gets used; captionEnabled (the "Show caption text"
   // checkbox) can turn either one off entirely. Both declared here so
   // showCaption() can reference them regardless of definition order.
-  let captionMode = 'bar';
+  let captionMode = 'box';
   const captionBox = document.getElementById('caption-box');
   const captionTextEl = document.getElementById('caption-text');
   const cinematicCaption = document.getElementById('cinematic-caption');
@@ -5370,7 +5381,7 @@ const MINI_CHAT_PAD = 3;
   // "thinks, then speaks" feel, at the cost of a quiet gap up front
   // while the first clip is synthesised. Off, text streams in as the
   // model writes it - visible sooner, but running ahead of the speech.
-  let captionFollowsSpeech = true;
+  let captionFollowsSpeech = false;
   // Text already revealed because its audio has played. Kept apart from
   // replyBuffer, which is everything the model has WRITTEN - the two
   // deliberately run at different rates.
