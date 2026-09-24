@@ -704,12 +704,9 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
             busy = "Ya hay un trabajo en segundo plano. Termino ese primero."
             send({"type": "reply_chunk", "text": busy})
             send({"type": "reply_done", "text": busy})
-            if voice is not None and voice.current_sink is sink:
-                try:
-                    voice.speak(busy)
-                except VoiceError:
-                    log.exception("Could not speak worker-busy acknowledgement")
-            send({"type": "speaking_done"})
+            _speak_background(
+                voice, busy, sink, websocket, loop, label="worker-busy acknowledgement"
+            )
             return
 
         ack = "Entendido. Me encargo de esa tarea en segundo plano."
@@ -720,12 +717,9 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
               "message": "Trabajo enviado al agente de trabajo."})
         send({"type": "reply_chunk", "text": ack})
         send({"type": "reply_done", "text": ack})
-        if voice is not None and voice.current_sink is sink:
-            try:
-                voice.speak(ack)
-            except VoiceError:
-                log.exception("Could not speak worker acknowledgement")
-        send({"type": "speaking_done"})
+        _speak_background(
+            voice, ack, sink, websocket, loop, label="worker acknowledgement"
+        )
         return
 
     # Speech is driven straight off the model's stream when the engine
@@ -949,6 +943,47 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
             send({"type": "speaking_done"})
         except websockets.exceptions.ConnectionClosed:
             pass
+
+
+def _speak_background(voice, text, sink, websocket, loop, label="voice"):
+    """Speak without making chat/worker completion wait for TTS/RVC.
+
+    Raphael RVC can take minutes on this hardware. Voice is an output
+    subsystem, so a slow or failed conversion must never hold up the HUD,
+    worker completion, or the next conversational turn.
+    """
+    if voice is None or voice.current_sink is not sink:
+        return
+
+    def run():
+        try:
+            voice.speak(text)
+        except VoiceError as exc:
+            log.exception("Background %s failed", label)
+            try:
+                asyncio.run_coroutine_threadsafe(
+                    websocket.send(json.dumps({
+                        "type": "voice_error", "message": str(exc)
+                    })), loop
+                )
+            except Exception:
+                pass
+        except Exception:
+            log.exception("Background %s failed", label)
+        finally:
+            try:
+                asyncio.run_coroutine_threadsafe(
+                    websocket.send(json.dumps({"type": "speaking_done"})),
+                    loop,
+                )
+            except Exception:
+                pass
+
+    threading.Thread(
+        target=_log_exceptions(run, "background " + label),
+        name="great-sage-voice",
+        daemon=True,
+    ).start()
 
 
 def _start_chat_thread(text, engine, voice, sink, websocket, loop,
