@@ -1,4 +1,10 @@
 ﻿.venv/
+.overlay-venv/
+__pycache__/
+*.pyc
+*.pyo
+*.dll
+.venv/
 .raphael-venv/
 third_party/*/env/
 voice_models/
