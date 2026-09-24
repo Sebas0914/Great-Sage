@@ -7,11 +7,14 @@ knows or cares that it's Ollama specifically.
 """
 
 import json
+import logging
 from typing import Iterator, List
 
 import requests
 
 from great_sage.models.base import Message, ModelProvider, ModelProviderError
+
+log = logging.getLogger(__name__)
 
 
 class OllamaProvider(ModelProvider):
@@ -52,9 +55,15 @@ class OllamaProvider(ModelProvider):
         try:
             from great_sage.config import settings as _s
             self.keep_alive = getattr(_s, "OLLAMA_KEEP_ALIVE_SECONDS", None)
+            # The fast conversational brain stays resident. On this machine,
+            # repeatedly loading the 4B model costs far more time than generation.
+            if self.model == getattr(_s, "OLLAMA_DEFAULT_MODEL", ""):
+                self.keep_alive = -1
         except Exception:
             self.keep_alive = None
-        self.base_num_ctx = 8192
+        # Keep ordinary conversation compact on the 8 GB RAM machine.
+        # Image requests use the separate larger context below.
+        self.base_num_ctx = 4096
         self.image_num_ctx = 16384
 
     def _payload(self, messages: List[Message], stream: bool) -> dict:
