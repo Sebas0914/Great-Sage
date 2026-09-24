@@ -814,17 +814,11 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
                 timer.text_done()
                 send({"type": "reply_chunk", "text": ack})
                 send({"type": "reply_done", "text": ack})
-                if voice is not None and voice.current_sink is sink:
-                    try:
-                        voice.speak(ack)
-                    except VoiceError as exc:
-                        log.exception("Voice/audio error speaking action acknowledgement")
-                        try:
-                            send({"type": "error", "message": str(exc)})
-                        except websockets.exceptions.ConnectionClosed:
-                            pass
+                _speak_background(
+                    voice, ack, sink, websocket, loop,
+                    label="action acknowledgement",
+                )
                 timer.finish()
-                send({"type": "speaking_done"})
                 return
 
             reply, used_tools = engine.send_with_tools(
