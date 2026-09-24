@@ -114,6 +114,7 @@ class WakeWordListener:
         self._get_trigger_phrases = get_trigger_phrases
         self._running = False
         self._thread = None
+        self._paused = threading.Event()
         # See PushToTalkRecorder.device - same deal, set directly by
         # server.py from the settings-panel mic picker.
         self.device = None
@@ -121,6 +122,19 @@ class WakeWordListener:
     @property
     def running(self) -> bool:
         return self._running
+
+    def pause(self) -> None:
+        """Temporarily stop consuming microphone utterances.
+
+        Push-to-talk and the always-on wake listener share the same physical
+        microphone. Without this gate, holding the PTT key can make Whisper
+        transcribe the same speech a second time through the wake listener.
+        """
+        self._paused.set()
+
+    def resume(self) -> None:
+        """Resume wake-word capture after push-to-talk has finished."""
+        self._paused.clear()
 
     def start(self) -> None:
         if self._running:
@@ -151,6 +165,12 @@ class WakeWordListener:
                     try:
                         block = q.get(timeout=0.5)
                     except queue.Empty:
+                        continue
+                    if self._paused.is_set():
+                        # Drain the device queue while PTT owns the mic.
+                        buffer = []
+                        silence_ms = 0
+                        recording = False
                         continue
                     level = float(np.sqrt(np.mean(np.square(block)))) if block.size else 0.0
                     if level > self.VOICE_THRESHOLD:
