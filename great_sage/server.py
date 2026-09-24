@@ -455,7 +455,19 @@ def _apply_mode(engine, cfg, send_json=None):
     mode = modes.get((cfg or {}).get("mode"))
     provider = getattr(engine, "provider", None)
     if provider is not None and hasattr(provider, "keep_alive"):
-        provider.keep_alive = 0 if not mode.keep_model_loaded else None
+        # Companion keeps the fast local brain resident. Setting None here
+        # silently replaced the provider's explicit -1 keep-alive with
+        # Ollama's normal expiry, causing the next voice turn to pay the
+        # model-load cost again.
+        if mode.keep_model_loaded:
+            if (getattr(provider, "model", None)
+                    == settings.OLLAMA_DEFAULT_MODEL):
+                provider.keep_alive = -1
+            else:
+                provider.keep_alive = getattr(
+                    settings, "OLLAMA_KEEP_ALIVE_SECONDS", None)
+        else:
+            provider.keep_alive = 0
         if not mode.keep_model_loaded and hasattr(provider, "unload"):
             # Do not wait for the next reply to finish - the point of the
             # mode is to free the card NOW.
