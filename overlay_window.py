@@ -45,10 +45,11 @@ import ctypes
 import os
 import sys
 import time
+from urllib.parse import unquote
 
 from PySide6.QtCore import QEvent, QPoint, Qt, QTimer, QUrl
 from PySide6.QtGui import QColor, QCursor, QGuiApplication, QSurfaceFormat
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QLabel, QWidget
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 # Frozen, the overlay is its OWN exe (see overlay.spec) - built on Python
@@ -78,6 +79,7 @@ READY_SENTINEL = "GS_OVERLAY_READY"
 # The overlay asks for a settings/history window with this prefix followed
 # by the section name. Same title channel as the other two signals.
 OPEN_PANEL_PREFIX = "GS_OPEN_PANEL:"
+SUBTITLE_PREFIX = "GS_SUBTITLE:"
 
 # Panel windows are ordinary opaque windows - they show forms and lists,
 # not a floating visual, so transparency would only hurt readability.
@@ -127,6 +129,73 @@ HIT_ALL_SENTINEL = "GS_HIT_ALL"
 HIT_CORE_SENTINEL = "GS_HIT_CORE"
 
 
+class SubtitleOverlay(QWidget):
+    """Screen-wide, click-through subtitle layer independent of Sage."""
+
+    def __init__(self):
+        super().__init__(None)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        self.setWindowFlags(
+            Qt.FramelessWindowHint
+            | Qt.WindowStaysOnTopHint
+            | Qt.Tool
+            | Qt.WindowTransparentForInput
+            | Qt.WindowDoesNotAcceptFocus
+        )
+        self.label = QLabel(self)
+        self.label.setWordWrap(True)
+        self.label.setAlignment(Qt.AlignCenter)
+        self.label.setStyleSheet(
+            "QLabel {"
+            " color: #ffffff;"
+            " background: rgba(35,35,35,200);"
+            " border: none;"
+            " border-radius: 14px;"
+            " padding: 14px 24px;"
+            " font-family: 'Segoe UI';"
+            " font-size: 30px;"
+            " font-weight: 500;"
+            " line-height: 1.35;"
+            "}"
+        )
+        self._hide_timer = QTimer(self)
+        self._hide_timer.setSingleShot(True)
+        self._hide_timer.timeout.connect(self.hide)
+        self.hide()
+        self.refresh_geometry()
+
+    def refresh_geometry(self):
+        screen = QGuiApplication.primaryScreen()
+        if screen is None:
+            return
+        area = screen.availableGeometry()
+        self.setGeometry(area)
+        width = min(980, max(320, int(area.width() * 0.78)))
+        self.label.setFixedWidth(width)
+        self.label.adjustSize()
+        x = (area.width() - self.label.width()) // 2
+        y = area.height() - self.label.height() - int(area.height() * 0.07)
+        self.label.move(max(0, x), max(0, y))
+
+    def set_text(self, text: str):
+        text = (text or "").strip()
+        if not text:
+            self._hide_timer.stop()
+            self.hide()
+            return
+        self.refresh_geometry()
+        self.label.setText(text)
+        self.label.adjustSize()
+        area = QGuiApplication.primaryScreen().availableGeometry()
+        x = (area.width() - self.label.width()) // 2
+        y = area.height() - self.label.height() - int(area.height() * 0.07)
+        self.label.move(max(0, x), max(0, y))
+        self.show()
+        self.raise_()
+        self._hide_timer.start(10000)
+
+
 class OverlayView(QWebEngineView):
     """Frameless, always-on-top, transparent, dragged by its handle."""
 
@@ -172,6 +241,7 @@ class OverlayView(QWebEngineView):
         self._pet_last_pos = QCursor.pos()
         self._pet_last_time = time.monotonic()
         self._pet_state = "idle"
+        self._subtitle = None
         self._pet_timer = QTimer(self)
         self._pet_timer.timeout.connect(self._update_pet_state)
         self._pet_timer.start(50)
@@ -270,6 +340,15 @@ class OverlayView(QWebEngineView):
 
     # ---- page -> host ---------------------------------------------
     def _on_title(self, title: str):
+        raw = title.strip()
+        if raw.startswith(SUBTITLE_PREFIX):
+            try:
+                text = unquote(raw[len(SUBTITLE_PREFIX):])
+            except Exception:
+                text = ""
+            if getattr(self, "_subtitle", None) is not None:
+                self._subtitle.set_text(text)
+            return
         if title.strip() == READY_SENTINEL:
             # Placed and shown only now, so the first frame the user sees
             # is already the overlay.
@@ -611,6 +690,10 @@ def main() -> int:
         return app.exec()
 
     view = OverlayView(args.size)
+    subtitle = SubtitleOverlay()
+    view._subtitle = subtitle
+    subtitle.show()
+    subtitle.hide()
 
     url = args.url or QUrl.fromLocalFile(
         os.path.join(HERE, "hud_prototype.html")).toString()
