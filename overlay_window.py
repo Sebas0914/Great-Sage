@@ -284,11 +284,10 @@ class OverlayView(QWebEngineView):
                 self._placed = True
                 place_top_right(self, self.width())
             self.show()
-            # Apply the native border style after Qt has shown the
-            # translucent WebEngine window. Windows otherwise puts the
-            # frameless ANGLE surface on a less stable compositing path,
-            # which can present as rapid flashing on modern Qt/PySide6.
-            _apply_ws_border(self)
+            # Do NOT add WS_BORDER here. The overlay is intentionally
+            # frameless and translucent; on Windows that style bit paints
+            # a real 1px window frame around the otherwise transparent
+            # surface. It was the visible white square around Sage.
             self._install_mouse_filter()
             return
         if title.strip().startswith(OPEN_PANEL_PREFIX):
