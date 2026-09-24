@@ -33,6 +33,8 @@ class Route:
     level: str            # "simple" | "heavy"
     kind: str = ""        # "docx" | "xlsx" | "pptx" | "general" | "" (simple)
     reason: str = ""
+    agent: str = "conversation"  # logical specialist
+    prefer_online: bool = False  # specialized work uses API first when configured
 
     @property
     def is_heavy(self) -> bool:
@@ -160,21 +162,21 @@ def _classify_sentence(norm: str) -> Route:
     if kind and makes:
         return Route("heavy", kind, "crear + " + {
             "docx": "documento", "xlsx": "hoja de calculo",
-            "pptx": "presentacion"}[kind])
+            "pptx": "presentacion"}[kind], "documents", True)
 
     # Nouns that are usually chat, but not when a file is named too.
     if strong and _KIND_DOCX_WEAK.search(fresh) and _CONTAINER.search(fresh):
-        return Route("heavy", "docx", "crear + texto en archivo")
+        return Route("heavy", "docx", "crear + texto en archivo", "documents", True)
 
     # "redacta X" on its own: draft it as a document.
     if _REDACTA.search(norm):
-        return Route("heavy", "docx", "redactar")
+        return Route("heavy", "docx", "redactar", "documents", True)
 
     if _CODE.search(norm) or _CODE_PROGRAM.search(norm):
-        return Route("heavy", "general", "codigo")
+        return Route("heavy", "general", "codigo", "coding", True)
 
     if (strong and _ANALYSIS.search(norm)) or _DEEP_IMPERATIVE.search(norm):
-        return Route("heavy", "general", "analisis")
+        return Route("heavy", "general", "analisis", "research", True)
 
     return SIMPLE
 
@@ -192,5 +194,5 @@ def classify(text: str) -> Route:
         if route.is_heavy:
             return route
     if len(_norm(text)) >= _LONG_INPUT_CHARS:
-        return Route("heavy", "general", "texto largo")
+        return Route("heavy", "general", "texto largo", "documents", True)
     return SIMPLE
