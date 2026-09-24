@@ -961,21 +961,35 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
 
 
 def _speak_raphael_background(voice, text, sink, websocket, loop):
-    """Translate and synthesize Raphael without blocking the chat turn.
+    """Translate and synthesize Raphael sentence-by-sentence.
 
-    Both the Spanish->Japanese bridge and Applio/RVC can be slow on this
-    machine. Neither belongs on the critical path of the conversational
-    response, so the whole voice pipeline runs in the background.
+    The old path translated the entire answer and then launched one RVC
+    conversion. That made subtitles appear long before any voice. Breaking
+    at sentence boundaries lets the first Japanese sentence reach RVC as
+    soon as its translation is ready, while later sentences continue after
+    it. The background thread still owns the single speaking_done signal.
     """
     if voice is None or voice.current_sink is not sink:
         return
 
     def run():
         try:
-            spoken = _translate_for_raphael(text)
-            if not spoken or voice.current_sink is not sink:
-                return
-            voice.speak(spoken)
+            import re
+            sentences = [
+                part.strip()
+                for part in re.split(r"(?<=[.!?。！？])\s+", text.strip())
+                if part.strip()
+            ]
+            if not sentences:
+                sentences = [text.strip()]
+
+            for sentence in sentences:
+                if not sentence or voice.current_sink is not sink:
+                    break
+                spoken = _translate_for_raphael(sentence)
+                if not spoken or voice.current_sink is not sink:
+                    continue
+                voice.speak(spoken)
         except VoiceError as exc:
             log.exception("Background Raphael failed")
             try:
