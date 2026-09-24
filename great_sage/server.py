@@ -1000,6 +1000,10 @@ def _speak_background(voice, text, sink, websocket, loop, label="voice"):
     if voice is None or voice.current_sink is not sink:
         return
 
+    if getattr(settings, "VOICE_ENGINE", "").lower() == "raphael":
+        _speak_raphael_background(voice, text, sink, websocket, loop)
+        return
+
     def run():
         try:
             voice.speak(text)
@@ -1248,6 +1252,9 @@ async def run_server(engine, voice) -> None:
         _hotkey_listening["on"] = True
         log.info("Voice key down: listening (mode %s)", mode.label)
         try:
+            if wake_word_listener.running:
+                wake_word_listener.pause()
+                log.debug("Wake-word listener paused for push-to-talk")
             ptt_recorder.start()
             _send_ptt_state(True)
         except Exception:
@@ -1261,8 +1268,16 @@ async def run_server(engine, voice) -> None:
         _hotkey_listening["on"] = False
         _send_ptt_state(False)
         log.info("Voice key up: transcribing")
+        def _finish_ptt():
+            try:
+                ptt_recorder.stop()
+            finally:
+                if wake_word_listener.running:
+                    wake_word_listener.resume()
+                    log.debug("Wake-word listener resumed after push-to-talk")
+
         threading.Thread(
-            target=_log_exceptions(ptt_recorder.stop,
+            target=_log_exceptions(_finish_ptt,
                                    "voice key transcription"),
             daemon=True).start()
 
