@@ -80,6 +80,7 @@ READY_SENTINEL = "GS_OVERLAY_READY"
 # by the section name. Same title channel as the other two signals.
 OPEN_PANEL_PREFIX = "GS_OPEN_PANEL:"
 SUBTITLE_PREFIX = "GS_SUBTITLE:"
+SUBTITLE_CLEAR = "GS_SUBTITLE_CLEAR"
 
 # Panel windows are ordinary opaque windows - they show forms and lists,
 # not a floating visual, so transparency would only hurt readability.
@@ -178,6 +179,11 @@ class SubtitleOverlay(QWidget):
         y = area.height() - self.label.height() - int(area.height() * 0.07)
         self.label.move(max(0, x), max(0, y))
 
+    def hide_after_speech(self):
+        """Keep the final subtitle visible for exactly 3s after speech."""
+        self._hide_timer.stop()
+        self._hide_timer.start(3000)
+
     def set_text(self, text: str):
         text = (text or "").strip()
         if not text:
@@ -193,7 +199,8 @@ class SubtitleOverlay(QWidget):
         self.label.move(max(0, x), max(0, y))
         self.show()
         self.raise_()
-        self._hide_timer.start(10000)
+        # Lifetime is controlled by GS_SUBTITLE_CLEAR after real speech ends.
+        self._hide_timer.stop()
 
 
 class OverlayView(QWebEngineView):
@@ -341,6 +348,10 @@ class OverlayView(QWebEngineView):
     # ---- page -> host ---------------------------------------------
     def _on_title(self, title: str):
         raw = title.strip()
+        if raw == SUBTITLE_CLEAR:
+            if getattr(self, "_subtitle", None) is not None:
+                self._subtitle.hide_after_speech()
+            return
         if raw.startswith(SUBTITLE_PREFIX):
             try:
                 text = unquote(raw[len(SUBTITLE_PREFIX):])
