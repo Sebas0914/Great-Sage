@@ -5386,7 +5386,7 @@ const MINI_CHAT_PAD = 3;
   // "thinks, then speaks" feel, at the cost of a quiet gap up front
   // while the first clip is synthesised. Off, text streams in as the
   // model writes it - visible sooner, but running ahead of the speech.
-  let captionFollowsSpeech = false;
+  let captionFollowsSpeech = true;
   // Text already revealed because its audio has played. Kept apart from
   // replyBuffer, which is everything the model has WRITTEN - the two
   // deliberately run at different rates.
@@ -5573,10 +5573,15 @@ const MINI_CHAT_PAD = 3;
       // looping under it.
       aiThinking = false;
       spokenSoFar = '';
-      // The whole reply has finished speaking - only now may the caption
-      // start its countdown.
+      // The real voice has finished. The standalone subtitle host owns the
+      // final 3-second grace period; tell it explicitly so its lifetime is
+      // tied to actual speech rather than an arbitrary timer from reply start.
       speechInProgress = false;
-      if (captionMode === 'bar') scheduleBarCaptionAutoHide();
+      if (IS_STANDALONE_OVERLAY) {
+        document.title = 'GS_SUBTITLE_CLEAR';
+      } else if (captionMode === 'bar') {
+        scheduleBarCaptionAutoHide();
+      }
     } else if (msg.type === 'error') {
       aiThinking = false; // safety net - no reply is coming for this one
       speechInProgress = false;
