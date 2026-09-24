@@ -4794,9 +4794,14 @@ const MINI_CHAT_PAD = 3;
 
   function showCaption(text) {
     if (!captionEnabled) return;
-    // In the overlay the normal caption treatments are hidden by the
-    // "keep only the visuals" rule, so replies would land nowhere. Route
-    // them to the bubble instead - it is the caption, at overlay scale.
+    // The standalone overlay is only a 340px visual window. Its subtitle
+    // must NOT be constrained to that window: the native overlay host
+    // renders a separate, screen-wide, click-through subtitle layer.
+    // Send the complete accumulated reply through the title bridge.
+    if (IS_STANDALONE_OVERLAY) {
+      document.title = 'GS_SUBTITLE:' + encodeURIComponent(text || '');
+      return;
+    }
     if (miniMode) { window.__showMiniChat(text); return; }
     if (captionMode === 'none') return;
     if (captionMode === 'bar') {
