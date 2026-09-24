@@ -166,7 +166,9 @@ from great_sage.core import (ai_settings, chat_store, guardrails, modes,
                              hud_settings, memory,
                              tools as tool_layer,
                              personality,
-                             voice_line_prefs)
+                             voice_line_prefs,
+                             router,
+                             worker as worker_layer)
 from great_sage.core.metrics import ResponseTimer
 from great_sage.log_broadcast import BroadcastLogHandler
 from great_sage.models.base import ModelProviderError
@@ -186,6 +188,10 @@ log = logging.getLogger(__name__)
 # - see the silent-action branch in the chat thread below.
 ACTION_TOOLS = frozenset({"open_url", "open_application", "open_folder",
                          "open_youtube"})
+
+# One background worker only. The machine has limited RAM/VRAM, so jobs are
+# serialized rather than loading multiple Qwen3 8B workers at once.
+_WORKER = worker_layer.WorkerManager()
 
 
 _GUARD_PROTECTED = None
@@ -663,6 +669,50 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
     except Exception:
         # Memory is a nice-to-have; never let it break a reply.
         log.exception("Memory command failed for %r", text)
+
+    # Long work is deliberately detached from the conversational turn.
+    # The fast agent acknowledges the request immediately, then Qwen3 8B
+    # works in the background and reports progress to the HUD.
+    route = router.classify(text)
+    if route.is_heavy:
+        def _worker_event(event):
+            try:
+                send({"type": "worker_update", **event})
+            except websockets.exceptions.ConnectionClosed:
+                pass
+
+        job = _WORKER.submit(
+            text,
+            route.kind or "general",
+            on_event=_worker_event,
+        )
+        if job is None:
+            busy = "Ya hay un trabajo en segundo plano. Termino ese primero."
+            send({"type": "reply_chunk", "text": busy})
+            send({"type": "reply_done", "text": busy})
+            if voice is not None and voice.current_sink is sink:
+                try:
+                    voice.speak(busy)
+                except VoiceError:
+                    log.exception("Could not speak worker-busy acknowledgement")
+            send({"type": "speaking_done"})
+            return
+
+        ack = "Entendido. Me encargo de esa tarea en segundo plano."
+        engine.history.append({"role": "user", "content": text})
+        engine.history.append({"role": "assistant", "content": ack})
+        send({"type": "worker_update", "job_id": job.id,
+              "kind": job.kind, "status": "queued",
+              "message": "Trabajo enviado al agente de trabajo."})
+        send({"type": "reply_chunk", "text": ack})
+        send({"type": "reply_done", "text": ack})
+        if voice is not None and voice.current_sink is sink:
+            try:
+                voice.speak(ack)
+            except VoiceError:
+                log.exception("Could not speak worker acknowledgement")
+        send({"type": "speaking_done"})
+        return
 
     # Speech is driven straight off the model's stream when the engine
     # supports it: the first sentence is synthesized while the rest of the
