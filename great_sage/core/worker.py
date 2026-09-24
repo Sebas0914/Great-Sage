@@ -52,6 +52,8 @@ class WorkerManager:
         kind: str,
         on_event: Optional[Callable[[dict], None]] = None,
         on_done: Optional[Callable[[WorkerJob, object, Optional[Exception]], None]] = None,
+        provider=None,
+        provider_label: str = "Ollama / Local",
     ) -> Optional[WorkerJob]:
         request = (request or "").strip()
         if not request:
@@ -90,7 +92,37 @@ class WorkerManager:
                 emit(status="progress", message=str(message))
 
             try:
-                result = heavy.run_job(job.request, job.kind, progress=progress)
+                emit(status="progress",
+                     message="Agente seleccionado: %s" % provider_label)
+                try:
+                    result = heavy.run_job(
+                        job.request,
+                        job.kind,
+                        provider=provider,
+                        progress=progress,
+                    )
+                except Exception as online_exc:
+                    # API providers are preferred for specialist work, but
+                    # losing the network must never lose the job. Retry once
+                    # with the local worker model.
+                    if provider is not None and not str(provider_label).startswith("Ollama / Local"):
+                        log.warning(
+                            "Specialized provider failed for job %s; "
+                            "falling back to local worker: %s",
+                            job.id, online_exc,
+                        )
+                        emit(
+                            status="progress",
+                            message="API no disponible. Cambiando al agente local...",
+                        )
+                        result = heavy.run_job(
+                            job.request,
+                            job.kind,
+                            provider=heavy.build_provider(),
+                            progress=progress,
+                        )
+                    else:
+                        raise
                 with self._lock:
                     job.status = "finished"
                 emit(
