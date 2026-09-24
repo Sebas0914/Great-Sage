@@ -168,7 +168,8 @@ from great_sage.core import (ai_settings, chat_store, guardrails, modes,
                              personality,
                              voice_line_prefs,
                              router,
-                             worker as worker_layer)
+                             worker as worker_layer,
+                             heavy as heavy_layer)
 from great_sage.core.metrics import ResponseTimer
 from great_sage.log_broadcast import BroadcastLogHandler
 from great_sage.models.base import ModelProviderError
@@ -687,9 +688,11 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
         # on the fast local provider unless the user explicitly selects
         # another chat provider. The worker itself owns the offline retry.
         cfg = ai_settings.load(settings.AI_SETTINGS_PATH)
-        local_worker = getattr(engine, "_local_provider", None)
-        if local_worker is None:
-            local_worker = engine.provider
+        # The local worker is deliberately a different brain from the fast
+        # conversational model. If no API key is configured, specialist work
+        # must use Qwen3 (HEAVY_MODEL), not Nemotron, so the two local roles
+        # remain independent.
+        local_worker = heavy_layer.build_provider()
         specialist_provider, specialist_label = (
             ai_settings.build_specialized_provider(cfg, local_worker)
         )
@@ -882,9 +885,6 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
         # was actually delivered, not the discarded draft it streamed.
         send({"type": "reply_done", "text": guarded})
         spoken_text = guarded
-        if (voice is not None and
-                getattr(settings, "VOICE_ENGINE", "").lower() == "raphael"):
-            spoken_text = _translate_for_raphael(guarded, engine.provider)
     except ModelProviderError as exc:
         log.exception("Model provider error handling chat message %r", text)
         end_stream()
@@ -908,6 +908,13 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
                 "connection replaced it) - skipping speech for %r to avoid "
                 "sending audio down the wrong/closed socket.",
                 text,
+            )
+        elif getattr(settings, "VOICE_ENGINE", "").lower() == "raphael":
+            # Raphael's translation bridge and RVC conversion are both slow.
+            # Detach the entire voice pipeline so the response timer and HUD
+            # completion are not held hostage by audio generation.
+            _speak_raphael_background(
+                voice, spoken_text, sink, websocket, loop
             )
         else:
             # Fallback for a voice engine without speak_stream (Pocket TTS):
@@ -937,6 +944,50 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
             send({"type": "speaking_done"})
         except websockets.exceptions.ConnectionClosed:
             pass
+
+
+def _speak_raphael_background(voice, text, sink, websocket, loop):
+    """Translate and synthesize Raphael without blocking the chat turn.
+
+    Both the Spanish->Japanese bridge and Applio/RVC can be slow on this
+    machine. Neither belongs on the critical path of the conversational
+    response, so the whole voice pipeline runs in the background.
+    """
+    if voice is None or voice.current_sink is not sink:
+        return
+
+    def run():
+        try:
+            spoken = _translate_for_raphael(text)
+            if not spoken or voice.current_sink is not sink:
+                return
+            voice.speak(spoken)
+        except VoiceError as exc:
+            log.exception("Background Raphael failed")
+            try:
+                asyncio.run_coroutine_threadsafe(
+                    websocket.send(json.dumps({
+                        "type": "voice_error", "message": str(exc)
+                    })), loop
+                )
+            except Exception:
+                pass
+        except Exception:
+            log.exception("Background Raphael failed")
+        finally:
+            try:
+                asyncio.run_coroutine_threadsafe(
+                    websocket.send(json.dumps({"type": "speaking_done"})),
+                    loop,
+                )
+            except Exception:
+                pass
+
+    threading.Thread(
+        target=_log_exceptions(run, "background Raphael"),
+        name="great-sage-raphael",
+        daemon=True,
+    ).start()
 
 
 def _speak_background(voice, text, sink, websocket, loop, label="voice"):
