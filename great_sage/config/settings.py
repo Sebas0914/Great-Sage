@@ -68,8 +68,7 @@ OLLAMA_HOST = os.environ.get("GREAT_SAGE_OLLAMA_HOST", "http://localhost:11434")
 # To go back without editing this file:
 #   set GREAT_SAGE_OLLAMA_MODEL=<some other pulled model>
 # Fast conversational model. Nemotron 4B is the model we benchmarked as
-# the quicker local option on this machine. The larger Qwen3 8B is reserved
-# for background worker jobs.
+# the quicker local option on this machine.
 OLLAMA_DEFAULT_MODEL = os.environ.get(
     "GREAT_SAGE_OLLAMA_MODEL", "nemotron-3-nano:4b"
 )
@@ -77,7 +76,12 @@ OLLAMA_DEFAULT_MODEL = os.environ.get(
 # Background worker model. Kept separate from the chat model so the fast
 # conversational agent never has to change identity just because a long
 # job starts.
-HEAVY_MODEL = os.environ.get("GREAT_SAGE_WORKER_MODEL", "qwen3:8b")
+# Use the quick 4B chat model for local work too. The previous qwen3:8b
+# worker took 848 seconds for a 5K-character Word document on this machine.
+# Online specialist providers still take priority when configured.
+HEAVY_MODEL = os.environ.get(
+    "GREAT_SAGE_WORKER_MODEL", OLLAMA_DEFAULT_MODEL
+)
 HEAVY_THINK = False
 HEAVY_TIMEOUT_SECONDS = int(os.environ.get("GREAT_SAGE_WORKER_TIMEOUT", "900"))
 HEAVY_KEEP_ALIVE_SECONDS = int(

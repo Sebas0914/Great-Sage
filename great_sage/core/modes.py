@@ -39,6 +39,8 @@ class Mode:
     # Keep the model resident between replies? False frees ~4GB of VRAM
     # at the cost of a reload (~4s) on the next message.
     keep_model_loaded: bool = True
+    # Optional short idle grace period before Ollama unloads it.
+    model_idle_seconds: int = 0
     # Frame cap the HUD should use. None means "leave it alone".
     hud_fps: int = 0
     # Listen for the wake word in the background?
@@ -58,9 +60,11 @@ MODES: Dict[str, Mode] = {
         "Everything available; Great Sage stays out of the way."),
     "gaming": Mode(
         "gaming", "GAMING",
-        "Frees the GPU: the model is unloaded between replies, the HUD "
-        "drops to a low frame rate, and background listening stops.",
-        keep_model_loaded=False, hud_fps=15, wake_word=False),
+        "Frees the GPU after 60 seconds without a reply, so follow-up "
+        "requests stay warm. The HUD drops to a low frame rate and "
+        "background listening stops.",
+        keep_model_loaded=False, model_idle_seconds=60,
+        hud_fps=15, wake_word=False),
     "coding": Mode(
         "coding", "CODING",
         "Everything available; longer answers are fine."),

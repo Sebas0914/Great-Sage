@@ -93,7 +93,15 @@ def build_system_prompt() -> str:
     # the relevant handful per turn. The count is still used, because
     # familiarity is earned from how much is actually remembered.
     # (This was NOT a latency fix - prompt size turned out NOT to drive time-to-first-token here: measured on this machine, TTFT held at ~1.06-1.16s from a 1.8K prompt all the way to 270K chars. The ~1.1s is a fixed floor from Ollama plus the model, not prompt-eval.)
-    return settings.SYSTEM_PROMPT + personality.render(state) + format_persona_phrases()
+    desktop_actions = (
+        "\n\nDESKTOP ACTIONS. Windows tools can inspect the screen, list and "
+        "focus visible windows, click, type text, and press keys. If asked to "
+        "enter Flutter or Dart code in an editor, use those tools to focus "
+        "the requested editor, enter the complete code, save with Ctrl+S, "
+        "and verify the target window before typing."
+    )
+    return (settings.SYSTEM_PROMPT + desktop_actions
+            + personality.render(state) + format_persona_phrases())
 
 
 def build_recall(provider: ModelProvider):

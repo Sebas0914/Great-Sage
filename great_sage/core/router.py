@@ -55,7 +55,8 @@ def _norm(text: str) -> str:
 _STRONG_VERB = re.compile(
     r"\b(?:crea(?:r|me)?|genera(?:r|me)?|haz(?:me)?|hacer(?:me)?|"
     r"arma(?:r|me)?|prepara(?:r|me)?|elabora(?:r|me)?|"
-    r"redacta(?:r|me)?|escribe(?:me)?|escribir(?:me)?|"
+    r"redact(?:a|as|e|es|ar|ame)?|"
+    r"escrib(?:e|es|a|as|an|ir)(?:me)?|"
     r"disena(?:r|me)?|construye|"
     r"make|create|generate|write|draft|build|prepare|compose)\b")
 
@@ -112,12 +113,26 @@ _ASKING = re.compile(
 
 # ---- heavy work that is not a document ---------------------------------
 _CODE = re.compile(
-    r"\b(?:escribe|crea|programa|genera|arma|write|create|implement|build)"
+    r"\b(?:escrib(?:e|es|a|as|an|ir)(?:me)?|crea|programa|genera|"
+    r"arma|write|create|implement|build)"
     r"(?:me|r)?\b.{0,40}\b(?:script|codigo|funcion|algoritmo|bot|code|"
     r"function|algorithm|api)\b")
 _CODE_PROGRAM = re.compile(
     r"\b(?:crea|escribe|programa|genera|haz|arma)(?:me|r)?\s+(?:un|una)\s+"
     r"programa\s+(?:que|en|para|con)\b")
+_CODE_ACTION = (
+    r"(?:escrib(?:e|es|a|as|an|ir)(?:me)?|crea|programa|implementa|"
+    r"modifica|write|build|implement|edit)")
+_CODE_TERM = r"(?:codigo|code|funcion|function|app|application|programa)"
+_EDITOR_TERM = (
+    r"(?:flutter|dart|vscode|vs\s*code|visual studio code|android studio)")
+_CODE_IN_EDITOR = re.compile(
+    r"\b" + _CODE_ACTION + r"\b.{0,100}\b" + _CODE_TERM +
+    r"\b.{0,50}\b" + _EDITOR_TERM + r"\b"
+    r"|\b" + _CODE_ACTION + r"\b.{0,100}\b" + _EDITOR_TERM +
+    r"\b.{0,50}\b" + _CODE_TERM + r"\b"
+    r"|\b" + _EDITOR_TERM + r"\b.{0,100}\b" + _CODE_TERM + r"\b",
+    re.I)
 _ANALYSIS = re.compile(
     r"\b(?:analisis|comparacion|comparativa|investigacion|estrategia|"
     r"plan detallado|analysis|comparison|research|strategy|in[- ]depth|"
@@ -172,6 +187,12 @@ def _classify_sentence(norm: str) -> Route:
     if _REDACTA.search(norm):
         return Route("heavy", "docx", "redactar", "documents", True)
 
+    # Requests to put Flutter/Dart code into an editor need desktop-control
+    # tools. Sending them to the coding worker only returns a code block; it
+    # cannot type into the IDE or save a file.
+    if _CODE_IN_EDITOR.search(norm):
+        return Route("simple", "", "codigo en editor", "desktop")
+
     if _CODE.search(norm) or _CODE_PROGRAM.search(norm):
         return Route("heavy", "coding", "codigo", "coding", True)
 
@@ -191,7 +212,7 @@ def classify(text: str) -> Route:
         if not norm:
             continue
         route = _classify_sentence(norm)
-        if route.is_heavy:
+        if route.is_heavy or route.agent != "conversation":
             return route
     if len(_norm(text)) >= _LONG_INPUT_CHARS:
         return Route("heavy", "research", "texto largo", "research", True)

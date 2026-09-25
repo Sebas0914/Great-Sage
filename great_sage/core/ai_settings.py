@@ -198,6 +198,12 @@ def build_specialized_provider(data, fallback):
     if want not in ("anthropic", "openai", "nvidia") or not key:
         return fallback, "Ollama / Local"
     model = cfg.get("specialized_model") or ""
+    # NVIDIA's OpenAI-compatible endpoint does not accept OpenAIProvider's
+    # default model (gpt-4o-mini). Sending that request returned HTTP 404,
+    # after which local work fell back to the slow 8B model. Without an
+    # explicitly selected NVIDIA model, use the configured local fallback.
+    if want == "nvidia" and not model.strip():
+        return fallback, "Ollama / Local (NVIDIA model not selected)"
     try:
         if want == "anthropic":
             from great_sage.models.anthropic_provider import AnthropicProvider

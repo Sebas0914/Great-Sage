@@ -1321,7 +1321,9 @@ def _es_norm(s):
 # Accented and unaccented spellings both, because the gate is a plain
 # substring test. "hora" alone is NOT here: it is inside "ahora".
 _TRIGGERS = _TRIGGERS + (
-    "abre", "abrir", "Ã¡breme", "abreme", "lanza", "ejecuta",
+    "abre", "abres", "abra", "abras", "abran", "abrir", "Ã¡breme", "abreme",
+    "escribe", "escribas", "escriba", "escriban", "escribir",
+    "lanza", "ejecuta",
     "reproduce", "ponme", "pon ",
     "busca", "buscar", "bÃºscame", "buscame", "encuentra", "investiga",
     "muÃ©strame", "muestrame", "googlea",
@@ -1362,7 +1364,8 @@ _YT_FIRST = _re.compile(
 
 
 # ---- opening things --------------------------------------------------
-_ES_OPEN_VERB = (r"(?:[aÃ¡]bre(?:s|me)?|abrir(?:me)?|lanza(?:r)?(?:me)?|"
+_ES_OPEN_VERB = (r"(?:[aÃ¡]bre(?:s|me)?|abres|abra|abras|abran|"
+                 r"abrir(?:me)?|lanza(?:r)?(?:me)?|"
                  r"ejecuta(?:r)?(?:me)?)")
 
 _ES_OPEN = _re.compile(
@@ -1416,7 +1419,14 @@ def _es_not_an_order(m):
     whole = _es_norm((m.string or "").strip()).lstrip("Â¿Â¡ ")
     if any(whole.startswith(w) for w in _ES_ASKING):
         return True
-    before = _es_norm(m.string[:m.start()]).split()
+    prefix = _es_norm(m.string[:m.start()])
+    # "quiero que abras Word" / "necesito que abras Word" is a request,
+    # even though the verb follows "que". The generic relative-clause guard
+    # below used to suppress precisely this common Spanish construction.
+    if _re.search(r"\b(?:quiero|necesito|ocupo|puedes|podrias|me gustaria)\s+que\s*$",
+                  prefix):
+        return False
+    before = prefix.split()
     return bool(before) and before[-1] in _ES_NOT_AN_ORDER_BEFORE
 
 

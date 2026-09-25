@@ -191,11 +191,41 @@ ACTION_TOOLS = frozenset({"open_url", "open_application", "open_folder",
                          "open_youtube"})
 
 # One background worker only. The machine has limited RAM/VRAM, so jobs are
-# serialized rather than loading multiple Qwen3 8B workers at once.
+# serialized rather than loading multiple local work models at once.
 _WORKER = worker_layer.WorkerManager()
 
 
 _GUARD_PROTECTED = None
+
+
+def _prewarm_local_model(provider) -> None:
+    """Load the local chat model before the user asks the first question."""
+    if not isinstance(provider, OllamaProvider):
+        return
+    if (getattr(provider, "_great_sage_warmed", False)
+            or getattr(provider, "_great_sage_warming", False)):
+        return
+    provider._great_sage_warming = True
+
+    def warm():
+        import time
+        started = time.monotonic()
+        try:
+            provider.send_fast_message([{
+                "role": "user",
+                "content": "Responde únicamente: Listo.",
+            }])
+            provider._great_sage_warmed = True
+            log.info("Local chat model %s is warm (%.1fs)",
+                     provider.model, time.monotonic() - started)
+        except Exception:
+            log.warning("Could not prewarm local chat model %s",
+                        provider.model, exc_info=True)
+        finally:
+            provider._great_sage_warming = False
+
+    threading.Thread(target=warm, name="great-sage-model-warmup",
+                     daemon=True).start()
 
 
 def _log_exceptions(fn, label):
@@ -445,12 +475,9 @@ def _apply_voice_provider(voice):
 def _apply_mode(engine, cfg, send_json=None):
     """Put a mode's limits into effect (spec S39/S40).
 
-    The one that does real work is GAMING: keep_alive 0 means Ollama drops
-    the model the moment a reply finishes, which measured 4052MB of VRAM
-    handed straight back. SLEEP does the same. Everything else leaves the
-    model resident, because reloading costs about four seconds on the next
-    message and that is only worth paying when the GPU is wanted
-    elsewhere.
+    GAMING keeps the model warm for a short idle window so the next spoken
+    request can reuse it, then Ollama returns its memory to the game. SLEEP
+    still unloads immediately. Other modes keep the model resident.
     """
     mode = modes.get((cfg or {}).get("mode"))
     provider = getattr(engine, "provider", None)
@@ -467,8 +494,13 @@ def _apply_mode(engine, cfg, send_json=None):
                 provider.keep_alive = getattr(
                     settings, "OLLAMA_KEEP_ALIVE_SECONDS", None)
         else:
-            provider.keep_alive = 0
-        if not mode.keep_model_loaded and hasattr(provider, "unload"):
+            # GAMING gets a short warm window: follow-up voice commands stay
+            # quick, then Ollama returns the memory to the game after idle.
+            # SLEEP still unloads immediately.
+            provider.keep_alive = getattr(mode, "model_idle_seconds", 0)
+        if (not mode.keep_model_loaded
+                and not getattr(mode, "model_idle_seconds", 0)
+                and hasattr(provider, "unload")):
             # Do not wait for the next reply to finish - the point of the
             # mode is to free the card NOW.
             threading.Thread(target=provider.unload, daemon=True).start()
@@ -676,11 +708,37 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
         log.exception("Memory command failed for %r", text)
 
     # Long work is deliberately detached from the conversational turn.
-    # The fast agent acknowledges the request immediately, then Qwen3 8B
-    # works in the background and reports progress to the HUD.
+    # The fast agent acknowledges the request immediately, then the work
+    # model runs in the background and reports progress to the HUD.
     route = router.classify(text)
     if route.is_heavy:
+        # A request can contain both a concrete desktop action and a long
+        # creation task (for example, "abre Word y escribe un documento").
+        # Do the launch directly instead of asking either model to infer it.
+        open_word_requested = False
+        for tool_name, arguments in tool_layer.preroute(text):
+            if tool_name != "open_application":
+                continue
+            app_name = str(arguments.get("name") or "")
+            try:
+                result = tool_layer.execute(tool_name, arguments)
+                log.info("Pre-routed tool %s -> %s", tool_name, result[:100])
+                send({"type": "tool_used", "name": tool_name,
+                      "result": result[:400]})
+                if route.kind == "docx" and "word" in app_name.lower():
+                    open_word_requested = True
+            except Exception as exc:
+                log.warning("Pre-routed %s failed: %s", tool_name, exc)
+
         def _worker_event(event):
+            if (open_word_requested
+                    and event.get("status") == "finished"
+                    and event.get("path")):
+                try:
+                    os.startfile(event["path"])
+                    event["message"] = "Documento creado y abierto en Word."
+                except Exception:
+                    log.exception("Could not open generated Word document")
             try:
                 send({"type": "worker_update", **event})
             except websockets.exceptions.ConnectionClosed:
@@ -690,10 +748,8 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
         # on the fast local provider unless the user explicitly selects
         # another chat provider. The worker itself owns the offline retry.
         cfg = ai_settings.load(settings.AI_SETTINGS_PATH)
-        # The local worker is deliberately a different brain from the fast
-        # conversational model. If no API key is configured, specialist work
-        # must use Qwen3 (HEAVY_MODEL), not Nemotron, so the two local roles
-        # remain independent.
+        # Reuse the configured quick local model as the worker fallback.
+        # A separate 8B model took 848 seconds for one Word document here.
         local_worker = heavy_layer.build_provider()
         specialist_provider, specialist_label = (
             ai_settings.build_specialized_provider(cfg, local_worker)
@@ -783,7 +839,8 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
         _tools_ok = True if _tools_ok is None else bool(_tools_ok())
         if (getattr(settings, "TOOLS_ENABLED", True)
                 and _tools_ok
-                and tool_layer.might_need_tools(text)):
+                and (tool_layer.might_need_tools(text)
+                     or route.agent == "desktop")):
             # Tool-capable turns are NOT streamed. Ollama reports
             # tool_calls only on a complete message, so the call has to
             # finish before it is known whether one was requested at all.
@@ -840,6 +897,7 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
 
             reply, used_tools = engine.send_with_tools(
                 text, tool_layer.ollama_schema(), tool_layer.execute,
+                max_rounds=5 if route.agent == "desktop" else 3,
                 collect_images=tool_layer.take_pending_images,
                 preroute_results=pre_results, preroute_images=pre_images)
             used_tools = [u for u in used_tools
@@ -1142,6 +1200,15 @@ async def run_server(engine, voice) -> None:
     can never steal the active sink out from under the real HUD window.
     """
     loop = asyncio.get_running_loop()
+
+    # Resolve persisted provider settings before the HUD connects, then load
+    # a local model in the background. The first real message should not pay
+    # Ollama's cold-load cost (measured at ~15s on this machine).
+    startup_cfg = ai_settings.load(settings.AI_SETTINGS_PATH)
+    _apply_provider(engine, startup_cfg)
+    startup_mode = _apply_mode(engine, startup_cfg)
+    if startup_mode.keep_model_loaded:
+        _prewarm_local_model(engine.provider)
 
     # Apply whichever cloned-voice candidate was last selected, once, at
     # startup - not per-connection, since it's real engine state (the
@@ -1537,6 +1604,8 @@ async def run_server(engine, voice) -> None:
                 "hud_fps": _mode.hud_fps, "wake_word": _mode.wake_word,
                 "description": _mode.description}))
             _apply_mode(engine, _cfg)
+            if _mode.keep_model_loaded:
+                _prewarm_local_model(engine.provider)
             await websocket.send(json.dumps({
                 "type": "ai_settings",
                 "settings": ai_settings.public_view(
@@ -1696,6 +1765,8 @@ async def run_server(engine, voice) -> None:
                         ai_settings.save(settings.AI_SETTINGS_PATH, merged)
                         _apply_provider(engine, merged)
                         _m = _apply_mode(engine, merged)
+                        if _m.keep_model_loaded:
+                            _prewarm_local_model(engine.provider)
                         await websocket.send(json.dumps({
                             "type": "mode", "mode": _m.name,
                             "label": _m.label, "hud_fps": _m.hud_fps,
@@ -1888,6 +1959,10 @@ async def run_server(engine, voice) -> None:
                 elif msg_type == "ptt_start":
                     active_connection["websocket"] = websocket
                     active_connection["sink"] = sink
+                    # Load the local model while the user is speaking. In
+                    # GAMING mode this overlaps the cold-load with recording
+                    # without keeping the GPU model resident after idle.
+                    _prewarm_local_model(engine.provider)
                     ptt_recorder.start()
                 elif msg_type == "ptt_stop":
                     # stop() blocks on local transcription (faster-whisper) -
