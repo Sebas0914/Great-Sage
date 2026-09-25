@@ -34,7 +34,7 @@ TTS_PROVIDERS = ("f5", "elevenlabs", "openai")
 
 DEFAULTS: Dict[str, Any] = {
     "chat_provider": "local",
-    "chat_model": "",
+"chat_model": "nemotron-3-nano:4b",
     # Specialized agents prefer configured API providers when online.
     # If unavailable, the worker automatically falls back to the local model.
     "specialized_provider": "nvidia",

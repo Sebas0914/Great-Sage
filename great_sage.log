@@ -2741,3 +2741,597 @@ AssertionError: Invalid device id
 2026-09-20 10:02:24,962 [WARNING] great_sage.voice.speech_to_text: Transcribed 1.6s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
 2026-09-20 10:02:44,781 [INFO] websockets.server: connection closed
 2026-09-20 10:02:44,785 [INFO] great_sage.server: Client disconnected
+2026-09-24 15:44:23,151 [INFO] great_sage.app: Great Sage starting (frozen=False, base=C:\Users\rimse\The-GREAT-SAGE-master)
+2026-09-24 15:44:35,612 [INFO] run_hud: Starting Great Sage HUD
+2026-09-24 15:45:22,920 [INFO] run_hud: Local chat model warmed in 45.26s
+2026-09-24 15:45:22,957 [INFO] great_sage.server: Restored voice FX settings
+2026-09-24 15:45:22,962 [INFO] great_sage.server: Autonomy running (0 task(s) restored)
+2026-09-24 15:45:22,965 [INFO] great_sage.server: Watching for fullscreen games (auto GAMING mode)
+2026-09-24 15:45:22,969 [INFO] great_sage.core.global_hotkey: Global hotkey active: alt+1 (works from any window)
+2026-09-24 15:45:22,971 [INFO] great_sage.server: Wake-word listener started (restored from settings)
+2026-09-24 15:45:23,056 [INFO] websockets.server: server listening on [::1]:8765
+2026-09-24 15:45:23,056 [INFO] websockets.server: server listening on 127.0.0.1:8765
+2026-09-24 15:45:23,056 [INFO] great_sage.server: WebSocket bridge listening on ws://localhost:8765
+2026-09-24 15:45:24,976 [INFO] websockets.server: connection open
+2026-09-24 15:45:24,977 [INFO] great_sage.server: Client connected (::1:62274) ML, like Gecko) Chrome/153.0.0.0 Safari/537.36 Edg/153.0.0.0
+2026-09-24 15:45:24,981 [INFO] great_sage.server: Restored 30 saved chat(s)
+2026-09-24 15:45:24,982 [INFO] great_sage.server: Mode: COMPANION (model resident=True, hud fps=normal, wake word=True, web=True, online=True)
+2026-09-24 15:45:26,375 [INFO] great_sage.server: Client is the hud
+2026-09-24 15:45:26,674 [INFO] great_sage.server: Interface sounds ready (12/12)
+2026-09-24 15:45:26,722 [INFO] run_hud: Placed window centre at (0,0) size 1924x1055
+2026-09-24 15:45:26,734 [INFO] run_hud: Resize border on (style now 0x16050000)
+2026-09-24 15:45:26,739 [INFO] run_hud: Host window background set to #070d14 (was the WinForms default, 240,240,240)
+2026-09-24 15:45:27,013 [INFO] great_sage.server: Voice key is now alt+1 (works from any window)
+2026-09-24 15:45:27,937 [INFO] httpx: HTTP Request: GET https://huggingface.co/api/models/Systran/faster-whisper-base/revision/main "HTTP/1.1 200 OK"
+2026-09-24 15:45:29,759 [INFO] faster_whisper: Processing audio with duration 00:01.620
+2026-09-24 15:45:30,251 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:45:31,359 [INFO] run_hud: Overlay will run under C:\Users\rimse\The-GREAT-SAGE-master\.overlay-venv\Scripts\python.exe
+2026-09-24 15:45:31,428 [INFO] run_hud: Overlay process started (pid 11964)
+2026-09-24 15:45:39,997 [INFO] websockets.server: connection open
+2026-09-24 15:45:40,001 [INFO] great_sage.server: Client connected (::1:60261) Gecko) QtWebEngine/6.4.3 Chrome/102.0.5005.177 Safari/537.36
+2026-09-24 15:45:40,008 [INFO] great_sage.server: Restored 30 saved chat(s)
+2026-09-24 15:45:40,011 [INFO] great_sage.server: Mode: COMPANION (model resident=True, hud fps=normal, wake word=True, web=True, online=True)
+2026-09-24 15:45:40,479 [INFO] great_sage.server: Client is the overlay
+2026-09-24 15:45:41,358 [INFO] great_sage.voice.speech_to_text: Transcribed 1.6s of audio: 'o no la'
+2026-09-24 15:45:41,364 [INFO] faster_whisper: Processing audio with duration 00:02.130
+2026-09-24 15:45:41,374 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:45:41,932 [INFO] great_sage.server: Voice key is now alt+1 (works from any window)
+2026-09-24 15:45:42,042 [INFO] great_sage.server: Interface sounds ready (12/12)
+2026-09-24 15:45:51,554 [INFO] great_sage.voice.speech_to_text: Transcribed 2.1s of audio: 'y así, sí, ojo.'
+2026-09-24 15:45:51,564 [INFO] faster_whisper: Processing audio with duration 00:00.840
+2026-09-24 15:45:51,570 [INFO] faster_whisper: VAD filter removed 00:00.304 of audio
+2026-09-24 15:45:53,120 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:45:53,128 [INFO] faster_whisper: Processing audio with duration 00:02.010
+2026-09-24 15:45:53,136 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:45:53,246 [INFO] great_sage.server: Voice key down: listening (mode COMPANION)
+2026-09-24 15:45:54,814 [INFO] great_sage.server: Voice key up: transcribing
+2026-09-24 15:45:54,853 [INFO] faster_whisper: Processing audio with duration 00:01.456
+2026-09-24 15:45:54,863 [INFO] faster_whisper: VAD filter removed 00:00.272 of audio
+2026-09-24 15:45:57,119 [INFO] great_sage.voice.speech_to_text: Transcribed 1.5s of audio: 'hola'
+2026-09-24 15:45:59,873 [INFO] great_sage.voice.speech_to_text: Transcribed 2.0s of audio: 'No sé.'
+2026-09-24 15:45:59,878 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 15:45:59,885 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:46:01,715 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:46:01,723 [INFO] faster_whisper: Processing audio with duration 00:05.460
+2026-09-24 15:46:01,745 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:46:27,752 [INFO] great_sage.voice.speech_to_text: Transcribed 5.5s of audio: 'Ok, lo mismo aquí, se lo digo. Ah, ¿tastos? ¿no? Sí, el agua se atoruma yo.'
+2026-09-24 15:46:27,756 [INFO] faster_whisper: Processing audio with duration 00:00.840
+2026-09-24 15:46:27,765 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:46:30,122 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:46:30,128 [INFO] faster_whisper: Processing audio with duration 00:03.540
+2026-09-24 15:46:30,144 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:46:33,137 [INFO] great_sage.voice.speech_to_text: Transcribed 3.5s of audio: 'No, ya sí, me llegó, ¿qué me días que no iba a querer? No, la por lo.'
+2026-09-24 15:46:33,153 [INFO] faster_whisper: Processing audio with duration 00:00.930
+2026-09-24 15:46:33,160 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:46:44,619 [INFO] great_sage.voice.speech_to_text: Transcribed 0.9s of audio: 'ahora'
+2026-09-24 15:46:44,632 [INFO] faster_whisper: Processing audio with duration 00:01.860
+2026-09-24 15:46:44,651 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:46:53,934 [INFO] great_sage.core.metrics: timing hola | first_token=55.42s  text_done=56.80s  total=56.81s
+2026-09-24 15:46:53,936 [INFO] great_sage.core.metrics: timing hola | first_token=55.42s  text_done=56.80s  total=56.81s
+2026-09-24 15:47:19,061 [INFO] great_sage.voice.speech_to_text: Transcribed 1.9s of audio: 'No, no, no, no, no, no lo hago para él.'
+2026-09-24 15:47:19,077 [INFO] faster_whisper: Processing audio with duration 00:01.710
+2026-09-24 15:47:19,090 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:47:21,309 [INFO] great_sage.voice.speech_to_text: Transcribed 1.7s of audio: '¿Puedes gambre que jugar fuertes?'
+2026-09-24 15:47:21,318 [INFO] faster_whisper: Processing audio with duration 00:01.950
+2026-09-24 15:47:21,331 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:47:32,496 [INFO] great_sage.voice.speech_to_text: Transcribed 1.9s of audio: 'No, no, no, no, no, no.'
+2026-09-24 15:47:32,507 [INFO] faster_whisper: Processing audio with duration 00:02.280
+2026-09-24 15:47:32,520 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:47:37,753 [INFO] great_sage.voice.speech_to_text: Transcribed 2.3s of audio: '¡No rippos nada! Eh?'
+2026-09-24 15:47:37,756 [INFO] faster_whisper: Processing audio with duration 00:00.810
+2026-09-24 15:47:37,760 [INFO] faster_whisper: VAD filter removed 00:00.810 of audio
+2026-09-24 15:47:37,769 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:47:37,775 [INFO] faster_whisper: Processing audio with duration 00:00.900
+2026-09-24 15:47:37,782 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:47:39,524 [INFO] great_sage.voice.speech_to_text: Transcribed 0.9s of audio: '¿Eh?'
+2026-09-24 15:47:39,529 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 15:47:39,534 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:47:45,935 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'y que estáis de sumo.'
+2026-09-24 15:47:45,941 [INFO] faster_whisper: Processing audio with duration 00:01.740
+2026-09-24 15:47:45,954 [INFO] faster_whisper: VAD filter removed 00:00.176 of audio
+2026-09-24 15:47:51,561 [INFO] great_sage.voice.speech_to_text: Transcribed 1.7s of audio: '¿Me la ves?'
+2026-09-24 15:47:51,571 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 15:47:51,579 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:47:54,204 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:47:54,210 [INFO] faster_whisper: Processing audio with duration 00:00.900
+2026-09-24 15:47:54,221 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:47:56,036 [ERROR] great_sage.server: Title generation failed
+Traceback (most recent call last):
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\urllib3\connectionpool.py", line 540, in _make_request
+    response = conn.getresponse()
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\urllib3\connection.py", line 638, in getresponse
+    httplib_response = super().getresponse()
+  File "C:\Python314\Lib\http\client.py", line 1450, in getresponse
+    response.begin()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Python314\Lib\http\client.py", line 336, in begin
+    version, status, reason = self._read_status()
+                              ~~~~~~~~~~~~~~~~~^^
+  File "C:\Python314\Lib\http\client.py", line 297, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\socket.py", line 725, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+TimeoutError: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\requests\adapters.py", line 696, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\urllib3\connectionpool.py", line 847, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\urllib3\util\retry.py", line 510, in increment
+    raise reraise(type(error), error, _stacktrace)
+          ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\urllib3\util\util.py", line 39, in reraise
+    raise value
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\urllib3\connectionpool.py", line 793, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\urllib3\connectionpool.py", line 542, in _make_request
+    self._raise_timeout(err=e, url=url, timeout_value=read_timeout)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\urllib3\connectionpool.py", line 373, in _raise_timeout
+    raise ReadTimeoutError(
+        self, url, f"Read timed out. (read timeout={timeout_value})"
+    ) from err
+urllib3.exceptions.ReadTimeoutError: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=60)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\rimse\The-GREAT-SAGE-master\great_sage\models\ollama_provider.py", line 134, in send_message
+    response = requests.post(
+        f"{self.host}/api/chat",
+        json=self._payload(messages, stream=False),
+        timeout=self.timeout,
+    )
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\requests\api.py", line 134, in post
+    return request("post", url, data=data, json=json, **kwargs)
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\requests\api.py", line 71, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\requests\sessions.py", line 651, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\requests\sessions.py", line 784, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\requests\adapters.py", line 742, in send
+    raise ReadTimeout(e, request=request)
+requests.exceptions.ReadTimeout: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=60)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\rimse\The-GREAT-SAGE-master\great_sage\server.py", line 541, in _suggest_title
+    out = provider.send_message([{"role": "user", "content": prompt}])
+  File "C:\Users\rimse\The-GREAT-SAGE-master\great_sage\models\ollama_provider.py", line 146, in send_message
+    raise ModelProviderError(
+        f"Ollama did not respond within {self.timeout}s."
+    ) from exc
+great_sage.models.base.ModelProviderError: Ollama did not respond within 60s.
+2026-09-24 15:48:01,147 [INFO] great_sage.voice.speech_to_text: Transcribed 0.9s of audio: '¡Ah! ¡Tienes de fruja!'
+2026-09-24 15:48:01,151 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:48:01,158 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:48:03,313 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:48:03,315 [INFO] faster_whisper: Processing audio with duration 00:00.990
+2026-09-24 15:48:03,322 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:48:08,862 [INFO] great_sage.voice.speech_to_text: Transcribed 1.0s of audio: 'Alla deje por que...'
+2026-09-24 15:48:08,868 [INFO] faster_whisper: Processing audio with duration 00:02.160
+2026-09-24 15:48:08,881 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:48:16,416 [INFO] great_sage.voice.speech_to_text: Transcribed 2.2s of audio: '¡Oh, doctor! ¡Sí, voy a ir!'
+2026-09-24 15:48:16,420 [INFO] faster_whisper: Processing audio with duration 00:01.500
+2026-09-24 15:48:16,431 [INFO] faster_whisper: VAD filter removed 00:00.144 of audio
+2026-09-24 15:48:22,403 [INFO] great_sage.voice.speech_to_text: Transcribed 1.5s of audio: 'A ver, pero un duro...'
+2026-09-24 15:48:22,412 [INFO] faster_whisper: Processing audio with duration 00:01.110
+2026-09-24 15:48:22,421 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:48:31,942 [INFO] great_sage.voice.speech_to_text: Transcribed 1.1s of audio: 'y nos vemos en la siguiente semana.'
+2026-09-24 15:48:31,945 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:48:31,950 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:48:38,795 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: '¡Adiós!'
+2026-09-24 15:48:38,804 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 15:48:38,810 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:48:40,412 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:48:40,417 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:48:40,421 [INFO] faster_whisper: VAD filter removed 00:00.750 of audio
+2026-09-24 15:48:40,424 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:48:40,429 [INFO] faster_whisper: Processing audio with duration 00:00.900
+2026-09-24 15:48:40,435 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:48:46,411 [INFO] great_sage.voice.speech_to_text: Transcribed 0.9s of audio: 'No, no, no.'
+2026-09-24 15:48:46,433 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:48:46,440 [INFO] faster_whisper: VAD filter removed 00:00.750 of audio
+2026-09-24 15:48:46,448 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:48:46,450 [INFO] faster_whisper: Processing audio with duration 00:00.810
+2026-09-24 15:48:46,455 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:48:51,814 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'y'
+2026-09-24 15:48:51,836 [INFO] faster_whisper: Processing audio with duration 00:00.840
+2026-09-24 15:48:51,842 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:48:57,744 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'que no te lo dan.'
+2026-09-24 15:48:57,750 [INFO] faster_whisper: Processing audio with duration 00:00.810
+2026-09-24 15:48:57,757 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:49:03,279 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'No, no, no.'
+2026-09-24 15:49:03,293 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:49:03,303 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:49:05,804 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:49:05,816 [INFO] faster_whisper: Processing audio with duration 00:00.810
+2026-09-24 15:49:05,828 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:49:08,363 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:49:08,366 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:49:08,371 [INFO] faster_whisper: VAD filter removed 00:00.750 of audio
+2026-09-24 15:49:08,377 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:49:08,411 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:49:08,417 [INFO] faster_whisper: VAD filter removed 00:00.750 of audio
+2026-09-24 15:49:08,422 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:49:08,426 [INFO] faster_whisper: Processing audio with duration 00:01.170
+2026-09-24 15:49:08,436 [INFO] faster_whisper: VAD filter removed 00:01.170 of audio
+2026-09-24 15:49:08,440 [WARNING] great_sage.voice.speech_to_text: Transcribed 1.2s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:49:08,451 [INFO] faster_whisper: Processing audio with duration 00:02.130
+2026-09-24 15:49:08,463 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:49:25,841 [INFO] great_sage.voice.speech_to_text: Transcribed 2.1s of audio: 'Sí, sí, sí, sí.'
+2026-09-24 15:49:25,845 [INFO] faster_whisper: Processing audio with duration 00:01.560
+2026-09-24 15:49:25,853 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:49:27,883 [INFO] great_sage.voice.speech_to_text: Transcribed 1.6s of audio: 'Ah, ah, ah, ah, ah...'
+2026-09-24 15:49:27,888 [INFO] faster_whisper: Processing audio with duration 00:01.500
+2026-09-24 15:49:27,896 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:49:34,405 [INFO] great_sage.voice.speech_to_text: Transcribed 1.5s of audio: 'Resipiendo hoy.'
+2026-09-24 15:49:34,412 [INFO] faster_whisper: Processing audio with duration 00:00.810
+2026-09-24 15:49:34,418 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:49:39,381 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: '¿No?'
+2026-09-24 15:49:39,404 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 15:49:39,408 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:49:48,889 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'Y ahora sí.'
+2026-09-24 15:49:48,900 [INFO] faster_whisper: Processing audio with duration 00:00.960
+2026-09-24 15:49:48,910 [INFO] faster_whisper: VAD filter removed 00:00.960 of audio
+2026-09-24 15:49:48,915 [WARNING] great_sage.voice.speech_to_text: Transcribed 1.0s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:49:48,926 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 15:49:48,932 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:50:07,480 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'que le es.'
+2026-09-24 15:50:07,497 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:50:07,506 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:50:10,292 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:50:10,294 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 15:50:10,299 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:50:14,887 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'Si no, no, no.'
+2026-09-24 15:50:14,910 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 15:50:14,914 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:50:19,287 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'No.'
+2026-09-24 15:50:19,290 [INFO] faster_whisper: Processing audio with duration 00:01.260
+2026-09-24 15:50:19,295 [INFO] faster_whisper: VAD filter removed 00:01.260 of audio
+2026-09-24 15:50:19,297 [WARNING] great_sage.voice.speech_to_text: Transcribed 1.3s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:50:19,303 [INFO] faster_whisper: Processing audio with duration 00:01.290
+2026-09-24 15:50:19,310 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:50:32,148 [INFO] great_sage.voice.speech_to_text: Transcribed 1.3s of audio: '¡Gracias!'
+2026-09-24 15:50:32,160 [INFO] faster_whisper: Processing audio with duration 00:05.700
+2026-09-24 15:50:32,190 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:50:44,854 [INFO] great_sage.voice.speech_to_text: Transcribed 5.7s of audio: 'Pero... Ese es el deshazal, me gusta el deshazal. Y... Así que también...'
+2026-09-24 15:50:44,860 [INFO] faster_whisper: Processing audio with duration 00:02.280
+2026-09-24 15:50:44,878 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:50:50,747 [INFO] great_sage.voice.speech_to_text: Transcribed 2.3s of audio: '¡No! ¡No! ¡No! ¡Sí, están buenas!'
+2026-09-24 15:51:01,254 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:51:01,260 [INFO] faster_whisper: VAD filter removed 00:00.750 of audio
+2026-09-24 15:51:01,264 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:51:05,634 [INFO] faster_whisper: Processing audio with duration 00:01.380
+2026-09-24 15:51:05,643 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:51:12,837 [INFO] great_sage.voice.speech_to_text: Transcribed 1.4s of audio: 'Vamos para el caballero, ya.'
+2026-09-24 15:51:13,976 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 15:51:13,982 [INFO] faster_whisper: VAD filter removed 00:00.780 of audio
+2026-09-24 15:51:13,987 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:51:17,093 [INFO] faster_whisper: Processing audio with duration 00:02.700
+2026-09-24 15:51:17,104 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:51:41,634 [INFO] great_sage.voice.speech_to_text: Transcribed 2.7s of audio: 'No, no, no. No, no. No, no.'
+2026-09-24 15:51:41,659 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 15:51:41,729 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:51:44,353 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:51:44,360 [INFO] faster_whisper: Processing audio with duration 00:02.760
+2026-09-24 15:51:44,392 [INFO] faster_whisper: VAD filter removed 00:01.720 of audio
+2026-09-24 15:51:52,205 [INFO] great_sage.voice.speech_to_text: Transcribed 2.8s of audio: 'Vamos a ver, vamos a ver.'
+2026-09-24 15:51:52,217 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 15:51:52,223 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:51:53,883 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:51:53,885 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 15:51:53,890 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:52:02,984 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'o claveleca'
+2026-09-24 15:52:02,990 [INFO] faster_whisper: Processing audio with duration 00:01.200
+2026-09-24 15:52:02,996 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:52:07,748 [INFO] great_sage.voice.speech_to_text: Transcribed 1.2s of audio: '¡No hay cas!'
+2026-09-24 15:52:07,751 [INFO] faster_whisper: Processing audio with duration 00:00.840
+2026-09-24 15:52:07,754 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:52:11,882 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'Y si no, si no, si no, si no, si no...'
+2026-09-24 15:52:11,884 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:52:11,887 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:52:13,443 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:52:13,449 [INFO] faster_whisper: Processing audio with duration 00:01.080
+2026-09-24 15:52:13,455 [INFO] faster_whisper: VAD filter removed 00:01.080 of audio
+2026-09-24 15:52:13,459 [WARNING] great_sage.voice.speech_to_text: Transcribed 1.1s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:52:13,467 [INFO] faster_whisper: Processing audio with duration 00:01.350
+2026-09-24 15:52:13,475 [INFO] faster_whisper: VAD filter removed 00:00.144 of audio
+2026-09-24 15:52:14,981 [INFO] great_sage.voice.speech_to_text: Transcribed 1.4s of audio: 'Ok.'
+2026-09-24 15:52:14,983 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:52:14,986 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:52:19,801 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'Ok.'
+2026-09-24 15:52:19,811 [INFO] faster_whisper: Processing audio with duration 00:00.990
+2026-09-24 15:52:19,824 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:52:21,360 [WARNING] great_sage.voice.speech_to_text: Transcribed 1.0s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:52:21,363 [INFO] faster_whisper: Processing audio with duration 00:00.930
+2026-09-24 15:52:21,368 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:52:26,106 [INFO] great_sage.voice.speech_to_text: Transcribed 0.9s of audio: '¡Adiós!'
+2026-09-24 15:52:26,115 [INFO] faster_whisper: Processing audio with duration 00:00.810
+2026-09-24 15:52:26,121 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:52:34,116 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'No, no, no.'
+2026-09-24 15:52:34,121 [INFO] faster_whisper: Processing audio with duration 00:01.800
+2026-09-24 15:52:34,138 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:52:42,681 [INFO] great_sage.voice.speech_to_text: Transcribed 1.8s of audio: 'Llega Ritz, AfterSix.'
+2026-09-24 15:52:42,703 [INFO] faster_whisper: Processing audio with duration 00:00.990
+2026-09-24 15:52:42,708 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:52:44,276 [INFO] great_sage.voice.speech_to_text: Transcribed 1.0s of audio: '¿Por qué no?'
+2026-09-24 15:52:44,280 [INFO] faster_whisper: Processing audio with duration 00:00.840
+2026-09-24 15:52:44,285 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:52:52,268 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'ahora sí.'
+2026-09-24 15:52:52,276 [INFO] faster_whisper: Processing audio with duration 00:01.380
+2026-09-24 15:52:52,283 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:52:53,873 [INFO] great_sage.voice.speech_to_text: Transcribed 1.4s of audio: 'lo que vamos a hacer ahora.'
+2026-09-24 15:52:53,879 [INFO] faster_whisper: Processing audio with duration 00:02.430
+2026-09-24 15:52:53,890 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:52:55,728 [INFO] great_sage.voice.speech_to_text: Transcribed 2.4s of audio: 'No, no, no, no, no, no, no, no, no.'
+2026-09-24 15:52:55,731 [INFO] faster_whisper: Processing audio with duration 00:00.990
+2026-09-24 15:52:55,736 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:53:00,211 [INFO] great_sage.voice.speech_to_text: Transcribed 1.0s of audio: 'No, no.'
+2026-09-24 15:53:00,215 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:53:00,220 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:53:13,335 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'No, no, no.'
+2026-09-24 15:53:13,338 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:53:13,344 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:53:20,639 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'No, no, no, no.'
+2026-09-24 15:53:20,647 [INFO] faster_whisper: Processing audio with duration 00:00.810
+2026-09-24 15:53:20,653 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:53:28,647 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:53:28,654 [INFO] faster_whisper: Processing audio with duration 00:01.980
+2026-09-24 15:53:28,664 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:53:30,340 [INFO] great_sage.voice.speech_to_text: Transcribed 2.0s of audio: 'No la misma que puse de cocina del telio verante.'
+2026-09-24 15:53:30,346 [INFO] faster_whisper: Processing audio with duration 00:00.930
+2026-09-24 15:53:30,352 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:53:31,895 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.9s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:53:31,898 [INFO] faster_whisper: Processing audio with duration 00:00.810
+2026-09-24 15:53:31,902 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:53:33,518 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:53:33,519 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:53:33,526 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:53:37,525 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'No, no, no.'
+2026-09-24 15:53:37,532 [INFO] faster_whisper: Processing audio with duration 00:00.810
+2026-09-24 15:53:37,537 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:53:45,592 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'No, no, no, no.'
+2026-09-24 15:53:45,596 [INFO] faster_whisper: Processing audio with duration 00:01.320
+2026-09-24 15:53:45,605 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:53:47,190 [INFO] great_sage.voice.speech_to_text: Transcribed 1.3s of audio: '¿Depende qué juego?'
+2026-09-24 15:53:47,194 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:53:47,199 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:53:55,801 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'para la gente.'
+2026-09-24 15:53:55,808 [INFO] faster_whisper: Processing audio with duration 00:00.870
+2026-09-24 15:53:55,812 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:54:01,080 [INFO] great_sage.voice.speech_to_text: Transcribed 0.9s of audio: 'Vamos a ver.'
+2026-09-24 15:54:01,091 [INFO] faster_whisper: Processing audio with duration 00:04.830
+2026-09-24 15:54:01,108 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:54:24,926 [INFO] great_sage.voice.speech_to_text: Transcribed 4.8s of audio: 'que no hay por todo. Tienes muy bien. Yo tengo que estar... Yo estoy con él.'
+2026-09-24 15:54:24,931 [INFO] faster_whisper: Processing audio with duration 00:01.770
+2026-09-24 15:54:24,940 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:54:35,743 [INFO] great_sage.voice.speech_to_text: Transcribed 1.8s of audio: 'y no, no, no, no, no.'
+2026-09-24 15:54:38,035 [INFO] faster_whisper: Processing audio with duration 00:01.770
+2026-09-24 15:54:38,045 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:54:39,707 [INFO] great_sage.voice.speech_to_text: Transcribed 1.8s of audio: 'un malo de... un malo de...'
+2026-09-24 15:54:39,710 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:54:39,713 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:54:41,348 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:54:41,351 [INFO] faster_whisper: Processing audio with duration 00:00.990
+2026-09-24 15:54:41,356 [INFO] faster_whisper: VAD filter removed 00:00.990 of audio
+2026-09-24 15:54:41,361 [WARNING] great_sage.voice.speech_to_text: Transcribed 1.0s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:54:51,022 [INFO] faster_whisper: Processing audio with duration 00:03.150
+2026-09-24 15:54:51,036 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:55:14,942 [INFO] great_sage.voice.speech_to_text: Transcribed 3.1s of audio: 'que tiene que ser informado pero no, no, no es pede, no es...'
+2026-09-24 15:55:14,957 [INFO] faster_whisper: Processing audio with duration 00:03.750
+2026-09-24 15:55:14,979 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:55:39,842 [INFO] great_sage.voice.speech_to_text: Transcribed 3.8s of audio: 'si no, no, no, no, no, no, no, no.'
+2026-09-24 15:55:39,847 [INFO] faster_whisper: Processing audio with duration 00:01.740
+2026-09-24 15:55:39,854 [INFO] faster_whisper: VAD filter removed 00:01.740 of audio
+2026-09-24 15:55:39,857 [WARNING] great_sage.voice.speech_to_text: Transcribed 1.7s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:55:39,863 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 15:55:39,867 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:55:41,450 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'No, no, no, no.'
+2026-09-24 15:55:41,456 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:55:41,459 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:55:49,577 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'Y eso.'
+2026-09-24 15:55:49,584 [INFO] faster_whisper: Processing audio with duration 00:01.110
+2026-09-24 15:55:49,591 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:55:58,033 [INFO] great_sage.voice.speech_to_text: Transcribed 1.1s of audio: 'y todo lo que pasa'
+2026-09-24 15:55:58,040 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:55:58,047 [INFO] faster_whisper: VAD filter removed 00:00.750 of audio
+2026-09-24 15:55:58,051 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:55:58,057 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 15:55:58,064 [INFO] faster_whisper: VAD filter removed 00:00.780 of audio
+2026-09-24 15:55:58,068 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:55:58,085 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 15:55:58,090 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:55:59,712 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:56:00,442 [INFO] faster_whisper: Processing audio with duration 00:04.950
+2026-09-24 15:56:00,465 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:56:17,852 [INFO] great_sage.voice.speech_to_text: Transcribed 5.0s of audio: 'como la que pasó pero estoy creando el horno. ¡Ayyy!'
+2026-09-24 15:56:17,858 [INFO] faster_whisper: Processing audio with duration 00:01.200
+2026-09-24 15:56:17,866 [INFO] faster_whisper: VAD filter removed 00:01.200 of audio
+2026-09-24 15:56:17,872 [WARNING] great_sage.voice.speech_to_text: Transcribed 1.2s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:56:17,877 [INFO] faster_whisper: Processing audio with duration 00:02.790
+2026-09-24 15:56:17,887 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:56:19,620 [INFO] great_sage.voice.speech_to_text: Transcribed 2.8s of audio: 'que estoy en eso que estoy en'
+2026-09-24 15:56:43,102 [INFO] faster_whisper: Processing audio with duration 00:00.840
+2026-09-24 15:56:43,105 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:56:51,900 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:56:51,905 [INFO] faster_whisper: Processing audio with duration 00:01.650
+2026-09-24 15:56:51,914 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:57:05,258 [INFO] great_sage.voice.speech_to_text: Transcribed 1.6s of audio: '¿Qué es eso?'
+2026-09-24 15:57:05,272 [INFO] faster_whisper: Processing audio with duration 00:00.840
+2026-09-24 15:57:05,277 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:57:06,837 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:57:18,412 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:57:18,415 [INFO] faster_whisper: VAD filter removed 00:00.750 of audio
+2026-09-24 15:57:18,418 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:57:35,991 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:57:35,994 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:57:43,225 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: '¿Qué pasa?'
+2026-09-24 15:57:43,942 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:57:43,945 [INFO] faster_whisper: VAD filter removed 00:00.750 of audio
+2026-09-24 15:57:43,949 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 15:59:28,071 [INFO] faster_whisper: Processing audio with duration 00:00.810
+2026-09-24 15:59:28,077 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:59:32,208 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'No, no, no.'
+2026-09-24 15:59:32,781 [INFO] faster_whisper: Processing audio with duration 00:00.900
+2026-09-24 15:59:32,787 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:59:37,188 [INFO] great_sage.voice.speech_to_text: Transcribed 0.9s of audio: 'en el momento.'
+2026-09-24 15:59:45,743 [INFO] faster_whisper: Processing audio with duration 00:01.560
+2026-09-24 15:59:45,751 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 15:59:53,971 [INFO] great_sage.voice.speech_to_text: Transcribed 1.6s of audio: 'no hay, no hay, no hay, no hay, no hay, no hay.'
+2026-09-24 15:59:53,977 [INFO] faster_whisper: Processing audio with duration 00:01.320
+2026-09-24 15:59:53,989 [INFO] faster_whisper: VAD filter removed 00:00.080 of audio
+2026-09-24 15:59:55,846 [INFO] great_sage.voice.speech_to_text: Transcribed 1.3s of audio: 'como es nada que lo voy a hacer'
+2026-09-24 15:59:55,853 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 15:59:55,859 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:00:01,171 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'No, no, no.'
+2026-09-24 16:00:01,174 [INFO] faster_whisper: Processing audio with duration 00:01.260
+2026-09-24 16:00:01,181 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:00:15,177 [INFO] great_sage.voice.speech_to_text: Transcribed 1.3s of audio: 'Dejadme este filo.'
+2026-09-24 16:00:15,179 [INFO] faster_whisper: Processing audio with duration 00:01.260
+2026-09-24 16:00:15,188 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:00:26,669 [INFO] great_sage.voice.speech_to_text: Transcribed 1.3s of audio: 'No, no, no, no.'
+2026-09-24 16:00:26,673 [INFO] faster_whisper: Processing audio with duration 00:00.990
+2026-09-24 16:00:26,680 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:00:31,651 [INFO] great_sage.voice.speech_to_text: Transcribed 1.0s of audio: '¿Qué ha habido?'
+2026-09-24 16:00:31,656 [INFO] faster_whisper: Processing audio with duration 00:01.320
+2026-09-24 16:00:31,663 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:00:36,092 [INFO] great_sage.voice.speech_to_text: Transcribed 1.3s of audio: 'de aéreo de mis amigos.'
+2026-09-24 16:00:36,096 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 16:00:36,100 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:00:40,318 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'Dejad...'
+2026-09-24 16:00:40,342 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 16:00:40,347 [INFO] faster_whisper: VAD filter removed 00:00.780 of audio
+2026-09-24 16:00:40,350 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 16:01:43,880 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 16:01:43,884 [INFO] faster_whisper: VAD filter removed 00:00.750 of audio
+2026-09-24 16:01:43,890 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 16:02:22,520 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 16:02:22,524 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:02:23,985 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 16:02:23,986 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 16:02:23,989 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:02:28,740 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'lo que hay en el día.'
+2026-09-24 16:02:28,746 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 16:02:28,750 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:02:30,163 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 16:02:46,132 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 16:02:46,137 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:02:56,159 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'que le pica.'
+2026-09-24 16:02:56,163 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 16:02:56,168 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:03:02,867 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'y esta...'
+2026-09-24 16:03:11,480 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 16:03:11,484 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:03:13,066 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 16:04:32,812 [INFO] faster_whisper: Processing audio with duration 00:01.140
+2026-09-24 16:04:32,844 [INFO] faster_whisper: VAD filter removed 00:00.688 of audio
+2026-09-24 16:04:37,325 [INFO] great_sage.voice.speech_to_text: Transcribed 1.1s of audio: 'No, no, no, no.'
+2026-09-24 16:05:03,051 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 16:05:03,057 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:05:23,547 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'de la vida, de la vida.'
+2026-09-24 16:06:00,680 [INFO] faster_whisper: Processing audio with duration 00:01.440
+2026-09-24 16:06:00,688 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:06:07,979 [INFO] great_sage.voice.speech_to_text: Transcribed 1.4s of audio: 'No, no, no, no.'
+2026-09-24 16:07:29,180 [INFO] faster_whisper: Processing audio with duration 00:01.500
+2026-09-24 16:07:29,189 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:07:38,589 [INFO] great_sage.voice.speech_to_text: Transcribed 1.5s of audio: 'y recuerdo un río de papá.'
+2026-09-24 16:08:11,959 [INFO] faster_whisper: Processing audio with duration 00:00.870
+2026-09-24 16:08:11,963 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:08:16,673 [INFO] great_sage.voice.speech_to_text: Transcribed 0.9s of audio: 'Mejor más en la mano.'
+2026-09-24 16:08:22,789 [INFO] faster_whisper: Processing audio with duration 00:00.900
+2026-09-24 16:08:22,794 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:08:29,787 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.9s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 16:08:29,790 [INFO] faster_whisper: Processing audio with duration 00:01.530
+2026-09-24 16:08:29,796 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:08:36,365 [INFO] great_sage.voice.speech_to_text: Transcribed 1.5s of audio: '¡Défico!'
+2026-09-24 16:09:01,581 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 16:09:01,585 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:09:03,022 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 16:09:07,970 [INFO] faster_whisper: Processing audio with duration 00:01.470
+2026-09-24 16:09:07,977 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:09:11,653 [INFO] great_sage.voice.speech_to_text: Transcribed 1.5s of audio: 'Y'
+2026-09-24 16:09:58,339 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 16:09:58,343 [INFO] faster_whisper: VAD filter removed 00:00.750 of audio
+2026-09-24 16:09:58,345 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 16:10:00,410 [INFO] faster_whisper: Processing audio with duration 00:00.840
+2026-09-24 16:10:00,413 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:10:01,779 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 16:10:06,439 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 16:10:06,442 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:10:18,408 [INFO] great_sage.voice.speech_to_text: Transcribed 0.8s of audio: 'Y ahora lo estoy haciendo.'
+2026-09-24 16:10:34,730 [INFO] faster_whisper: Processing audio with duration 00:00.780
+2026-09-24 16:10:34,733 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:10:36,156 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 16:11:08,750 [INFO] faster_whisper: Processing audio with duration 00:01.020
+2026-09-24 16:11:08,757 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:11:15,147 [INFO] great_sage.voice.speech_to_text: Transcribed 1.0s of audio: '¡Ahhh!'
+2026-09-24 16:11:54,692 [INFO] faster_whisper: Processing audio with duration 00:00.750
+2026-09-24 16:11:54,704 [INFO] faster_whisper: VAD filter removed 00:00.000 of audio
+2026-09-24 16:11:56,208 [INFO] websockets.server: connection closed
+2026-09-24 16:11:56,254 [INFO] great_sage.server: Client disconnected
+2026-09-24 16:11:56,256 [ERROR] websockets.server: connection handler failed
+Traceback (most recent call last):
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\websockets\asyncio\server.py", line 747, in protocol_handler
+    await handler(connection)
+  File "C:\Users\rimse\The-GREAT-SAGE-master\great_sage\server.py", line 1560, in handler
+    async for raw in websocket:
+    ...<353 lines>...
+            log.info("Mic device set to %r", index)
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\websockets\asyncio\connection.py", line 237, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\websockets\asyncio\connection.py", line 317, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+2026-09-24 16:11:56,384 [INFO] websockets.server: connection closed
+2026-09-24 16:11:56,401 [INFO] great_sage.server: Client disconnected
+2026-09-24 16:11:56,402 [ERROR] websockets.server: connection handler failed
+Traceback (most recent call last):
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\websockets\asyncio\server.py", line 747, in protocol_handler
+    await handler(connection)
+  File "C:\Users\rimse\The-GREAT-SAGE-master\great_sage\server.py", line 1560, in handler
+    async for raw in websocket:
+    ...<353 lines>...
+            log.info("Mic device set to %r", index)
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\websockets\asyncio\connection.py", line 237, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "C:\Users\rimse\AppData\Roaming\Python\Python314\site-packages\websockets\asyncio\connection.py", line 317, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+2026-09-24 16:11:58,392 [INFO] websockets.server: connection open
+2026-09-24 16:11:58,393 [INFO] great_sage.server: Client connected (::1:56798) ML, like Gecko) Chrome/153.0.0.0 Safari/537.36 Edg/153.0.0.0
+2026-09-24 16:11:58,421 [INFO] great_sage.server: Restored 31 saved chat(s)
+2026-09-24 16:11:58,429 [INFO] great_sage.server: Mode: COMPANION (model resident=True, hud fps=normal, wake word=True, web=True, online=True)
+2026-09-24 16:11:58,463 [INFO] great_sage.server: Client is the hud
+2026-09-24 16:11:58,467 [INFO] great_sage.server: Interface sounds ready (12/12)
+2026-09-24 16:11:58,638 [INFO] websockets.server: connection open
+2026-09-24 16:11:58,640 [INFO] great_sage.server: Client connected (::1:56799) Gecko) QtWebEngine/6.4.3 Chrome/102.0.5005.177 Safari/537.36
+2026-09-24 16:11:58,645 [INFO] great_sage.server: Restored 31 saved chat(s)
+2026-09-24 16:11:58,647 [INFO] great_sage.server: Mode: COMPANION (model resident=True, hud fps=normal, wake word=True, web=True, online=True)
+2026-09-24 16:11:58,666 [INFO] great_sage.server: Client is the overlay
+2026-09-24 16:11:58,667 [INFO] great_sage.server: Interface sounds ready (12/12)
+2026-09-24 16:11:59,265 [INFO] great_sage.server: Voice key is now alt+1 (works from any window)
+2026-09-24 16:11:59,414 [WARNING] great_sage.voice.speech_to_text: Transcribed 0.8s of audio but got NO text. Either nothing was said, or the VAD filter rejected it - check that faster_whisper/assets/silero_vad_v6.onnx is present.
+2026-09-24 16:11:59,455 [INFO] great_sage.server: Voice key is now alt+1 (works from any window)
+2026-09-24 16:12:05,942 [INFO] great_sage.server: Mode: GAMING (model resident=False, hud fps=15, wake word=False, web=True, online=True)
+2026-09-24 16:12:05,946 [INFO] great_sage.server: Game detected ('Pantalla de bloqueo predeterminada de Windows') - switched to GAMING, will restore COMPANION afterwards
