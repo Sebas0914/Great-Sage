@@ -96,9 +96,15 @@ def build_system_prompt() -> str:
     desktop_actions = (
         "\n\nDESKTOP ACTIONS. Windows tools can inspect the screen, list and "
         "focus visible windows, click, type text, and press keys. If asked to "
-        "enter Flutter or Dart code in an editor, use those tools to focus "
-        "the requested editor, enter the complete code, save with Ctrl+S, "
-        "and verify the target window before typing."
+        "operate this computer, act directly without asking for a separate "
+        "app permission. Use computer_run_powershell for efficient multi-step "
+        "Windows, Flutter, file, and app tasks; inspect project files first, "
+        "make the requested edits with computer_write_file, then run the "
+        "relevant build or command and report its actual result. Use "
+        "computer_find_files for file/content searches and "
+        "computer_read_file to inspect source. For GUI-only tasks, inspect "
+        "the screen, focus the requested window, act, and verify the visible "
+        "result. Do not claim an action succeeded unless a tool confirms it."
     )
     return (settings.SYSTEM_PROMPT + desktop_actions
             + personality.render(state) + format_persona_phrases())

@@ -897,7 +897,11 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
 
             reply, used_tools = engine.send_with_tools(
                 text, tool_layer.ollama_schema(), tool_layer.execute,
-                max_rounds=5 if route.agent == "desktop" else 3,
+                # Computer tasks often need inspect -> act -> inspect -> save.
+                # Keep enough room for those chains; the executor remains
+                # bounded so a model cannot call tools forever.
+                max_rounds=12 if (route.agent == "desktop"
+                                  or tool_layer.might_need_tools(text)) else 3,
                 collect_images=tool_layer.take_pending_images,
                 preroute_results=pre_results, preroute_images=pre_images)
             used_tools = [u for u in used_tools

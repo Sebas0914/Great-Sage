@@ -259,9 +259,20 @@ class ChatEngine:
                             outgoing.append({"role": "user",
                                              "content": "(the screen)",
                                              "images": list(shot)})
-            # Out of rounds: answer with what the tools returned rather
-            # than looping forever.
+            # Out of rounds: make one tools-disabled summary call. Without
+            # it many providers leave `content` empty on a final tool-call
+            # turn, so the user would see completed actions but no response.
+            outgoing.append({"role": "system", "content":
+                             "The action limit for this turn was reached. "
+                             "Do not request more tools. Briefly summarize "
+                             "only actions and results already present in "
+                             "the tool messages."})
+            message = self.provider.chat_raw(outgoing)
             reply = message.get("content") or ""
+            if not reply.strip():
+                completed = [str(result) for _name, result in used[-5:]]
+                reply = ("Acciones realizadas: " + "; ".join(completed)
+                         if completed else "No se completaron acciones.")
             self.history.append({"role": "assistant", "content": reply})
             return reply, used
         except ModelProviderError:

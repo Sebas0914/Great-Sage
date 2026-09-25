@@ -32,6 +32,7 @@ the model, the validation and the dispatch all derive from it.
 import glob
 import logging
 import os
+import subprocess
 import time
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional
@@ -288,6 +289,133 @@ def _search_files(query: str) -> str:
     return chr(10).join(hits)
 
 
+def _computer_read_file(path: str, max_chars: int = 50000) -> str:
+    """Read a text file at any path the current Windows account can access."""
+    target = os.path.expandvars(os.path.expanduser(str(path or "").strip()))
+    if not target:
+        raise ToolError("A file path is required.")
+    limit = max(1000, min(int(max_chars or 50000), 200000))
+    try:
+        with open(target, "r", encoding="utf-8-sig", errors="replace") as fh:
+            content = fh.read(limit + 1)
+    except Exception as exc:
+        raise ToolError("Could not read %s: %s" % (target, exc))
+    truncated = len(content) > limit
+    return content[:limit] + ("\n...[truncated]" if truncated else "")
+
+
+def _computer_write_file(path: str, content: str, append: bool = False) -> str:
+    """Create or replace a text file, creating missing parent directories."""
+    target = os.path.abspath(os.path.expandvars(
+        os.path.expanduser(str(path or "").strip())))
+    if not target or not str(path or "").strip():
+        raise ToolError("A destination path is required.")
+    body = str(content or "")
+    if len(body) > 1_000_000:
+        raise ToolError("A single write is limited to 1,000,000 characters.")
+    try:
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        with open(target, "a" if append else "w", encoding="utf-8",
+                  newline="") as fh:
+            fh.write(body)
+    except Exception as exc:
+        raise ToolError("Could not write %s: %s" % (target, exc))
+    return "Wrote %d characters to %s." % (len(body), target)
+
+
+def _computer_find_files(query: str, root: str = "", content: str = "",
+                         max_results: int = 20) -> str:
+    """Find names and optional text content under a chosen folder."""
+    needle = str(query or "").strip().lower()
+    if not needle and not str(content or "").strip():
+        raise ToolError("Give a file-name query or text to search for.")
+    base = os.path.abspath(os.path.expandvars(os.path.expanduser(
+        str(root or os.path.expanduser("~")).strip())))
+    if not os.path.isdir(base):
+        raise ToolError("Search folder does not exist: %s" % base)
+    count_limit = max(1, min(int(max_results or 20), 100))
+    text_needle = str(content or "").strip().lower()
+    text_extensions = {".txt", ".md", ".py", ".dart", ".yaml", ".yml",
+                       ".json", ".xml", ".html", ".htm", ".css", ".js",
+                       ".ts", ".java", ".kt", ".c", ".h", ".cpp", ".cs",
+                       ".ini", ".toml", ".log", ".csv", ".sql", ".bat",
+                       ".ps1", ".sh", ".gradle", ".properties"}
+    skip_dirs = {".git", ".hg", ".svn", "node_modules", "__pycache__",
+                 ".dart_tool", "build", "windows", "program files",
+                 "program files (x86)", "$recycle.bin", "system volume information"}
+    found = []
+    inspected = 0
+    deadline = time.monotonic() + 20
+    stopped = False
+    for directory, dirs, files in os.walk(base):
+        dirs[:] = [d for d in dirs if d.lower() not in skip_dirs]
+        for filename in files:
+            inspected += 1
+            if inspected > 25000 or time.monotonic() > deadline:
+                stopped = True
+                break
+            full_path = os.path.join(directory, filename)
+            matched = bool(needle and needle in filename.lower())
+            if (not matched and text_needle
+                    and os.path.splitext(filename)[1].lower() in text_extensions):
+                try:
+                    if os.path.getsize(full_path) <= 1_000_000:
+                        with open(full_path, "r", encoding="utf-8-sig",
+                                  errors="ignore") as fh:
+                            matched = text_needle in fh.read(1_000_000).lower()
+                except (OSError, PermissionError):
+                    pass
+            if matched:
+                found.append(full_path)
+                if len(found) >= count_limit:
+                    stopped = True
+                    break
+        if stopped:
+            break
+    suffix = "\n(Search stopped at its time/result limit.)" if stopped else ""
+    if not found:
+        return "No matching files found under %s after checking %d files.%s" % (
+            base, inspected, suffix)
+    return "\n".join(found) + suffix
+
+
+def _computer_run_powershell(command: str, cwd: str = "",
+                             timeout_seconds: int = 120) -> str:
+    """Run a PowerShell command as the signed-in user, with no app prompt."""
+    script = str(command or "").strip()
+    if not script:
+        raise ToolError("A PowerShell command is required.")
+    timeout = max(1, min(int(timeout_seconds or 120), 600))
+    working = os.path.abspath(os.path.expandvars(os.path.expanduser(
+        str(cwd or "").strip()))) if str(cwd or "").strip() else None
+    if working and not os.path.isdir(working):
+        raise ToolError("Working folder does not exist: %s" % working)
+    executable = ("pwsh.exe" if __import__("shutil").which("pwsh.exe")
+                  else "powershell.exe")
+    command_line = [executable, "-NoLogo", "-NoProfile", "-NonInteractive",
+                    "-ExecutionPolicy", "Bypass", "-Command",
+                    "$ProgressPreference='SilentlyContinue'; " + script]
+    flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+    try:
+        result = subprocess.run(command_line, cwd=working, capture_output=True,
+                                text=True, encoding="utf-8", errors="replace",
+                                timeout=timeout, creationflags=flags)
+    except subprocess.TimeoutExpired as exc:
+        output = exc.stdout or exc.stderr or ""
+        if isinstance(output, bytes):
+            output = output.decode("utf-8", errors="replace")
+        return ("Command timed out after %d seconds. Partial output:\n%s"
+                % (timeout, str(output)[-10000:]))
+    except Exception as exc:
+        raise ToolError("PowerShell failed to start: %s" % exc)
+    out = (result.stdout or "").strip()
+    err = (result.stderr or "").strip()
+    combined = out + (("\nSTDERR:\n" + err) if err else "")
+    if len(combined) > 12000:
+        combined = combined[-12000:] + "\n...[earlier output truncated]"
+    return "Exit code %d\n%s" % (result.returncode, combined or "(no output)")
+
+
 REGISTRY: List[Tool] = [
     Tool("get_time", "Get the current local date and time.",
          {"type": "object", "properties": {}}, _get_time, SAFE),
@@ -337,6 +465,45 @@ REGISTRY: List[Tool] = [
           "properties": {"query": {"type": "string"}},
           "required": ["query"]},
          _search_files, SAFE),
+    Tool("computer_find_files",
+         "Search files below any folder, matching filenames and optionally "
+         "text inside common source, config and document-text files. "
+         "Use root='C:\\' for a broad drive search; searches stop after "
+         "20 seconds or 25,000 files.",
+         {"type": "object", "properties": {
+             "query": {"type": "string", "description": "Filename text"},
+             "root": {"type": "string", "description": "Folder to search; defaults to the user folder"},
+             "content": {"type": "string", "description": "Optional text to find inside files"},
+             "max_results": {"type": "integer"}}},
+         _computer_find_files, SAFE),
+    Tool("computer_read_file",
+         "Read a text file at any path available to the current Windows account.",
+         {"type": "object", "properties": {
+             "path": {"type": "string"},
+             "max_chars": {"type": "integer"}},
+          "required": ["path"]},
+         _computer_read_file, SAFE),
+    Tool("computer_write_file",
+         "Create or overwrite a text file at any path available to this account. "
+         "Creates parent folders automatically; does not ask for confirmation.",
+         {"type": "object", "properties": {
+             "path": {"type": "string"},
+             "content": {"type": "string"},
+             "append": {"type": "boolean"}},
+          "required": ["path", "content"]},
+         _computer_write_file, SAFE),
+    Tool("computer_run_powershell",
+         "Run arbitrary PowerShell as the signed-in Windows user without an "
+         "application confirmation. Use for multi-step computer tasks, "
+         "Flutter/Dart commands, app launching, file operations and system "
+         "queries. cwd is optional; timeout is 1-600 seconds. Windows UAC "
+         "or account restrictions still apply.",
+         {"type": "object", "properties": {
+             "command": {"type": "string"},
+             "cwd": {"type": "string"},
+             "timeout_seconds": {"type": "integer"}},
+          "required": ["command"]},
+         _computer_run_powershell, SAFE),
 ]
 
 BY_NAME: Dict[str, Tool] = {t.name: t for t in REGISTRY}
@@ -377,7 +544,15 @@ def execute(name: str, arguments: Any) -> str:
         # than as the model having made something up.
         log.warning("Tool %s: ignoring unknown argument(s) %s", name, unknown)
         args = {k: v for k, v in args.items() if k in props}
-    log.info("Tool call: %s(%s)", name, args)
+    if name in {"computer_run_powershell", "computer_write_file"}:
+        # Commands and source/document contents can contain credentials or
+        # private data. Keep logs useful without copying their full payloads.
+        logged = {key: ("<%d chars>" % len(str(value))
+                        if key in {"command", "content"} else value)
+                  for key, value in args.items()}
+        log.info("Tool call: %s(%s)", name, logged)
+    else:
+        log.info("Tool call: %s(%s)", name, args)
     return tool.handler(**args)
 
 
@@ -1323,7 +1498,10 @@ def _es_norm(s):
 _TRIGGERS = _TRIGGERS + (
     "abre", "abres", "abra", "abras", "abran", "abrir", "Ã¡breme", "abreme",
     "escribe", "escribas", "escriba", "escriban", "escribir",
-    "lanza", "ejecuta",
+    "lanza", "ejecuta", "ejecutar", "instala", "instalar", "modifica",
+    "edita", "guarda", "automatiza", "sigue estos pasos", "paso a paso",
+    "en mi pc", "en mi computadora", "en mi ordenador", "en windows",
+    "en flutter", "en dart", "en vscode", "en vs code",
     "reproduce", "ponme", "pon ",
     "busca", "buscar", "bÃºscame", "buscame", "encuentra", "investiga",
     "muÃ©strame", "muestrame", "googlea",
