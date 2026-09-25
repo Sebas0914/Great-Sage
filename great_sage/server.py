@@ -527,29 +527,19 @@ def _suggest_title(provider, messages):
     that keeps rewriting itself as the topic drifts makes the list move
     under the user, which is worse than a slightly stale name.
     """
-    body = _transcript(messages, limit=6)
-    if not body:
+    # Never spend a conversational model call on housekeeping. Even in a
+    # background thread, an Ollama title request competes with the live reply
+    # for the same model and can stall both. Build a useful title locally.
+    first = next((str(m.get("content") or "").strip()
+                  for m in (messages or [])
+                  if m.get("role") == "user" and m.get("content")), "")
+    if not first:
         return None
-    NL = chr(10)
-    prompt = (
-        "Name this conversation for a sidebar." + NL +
-        "Two to four words. Title Case. No quotes, no punctuation, no "
-        "explanation - reply with the title and nothing else." + NL +
-        "Examples: Clevatess Sound Design, TTS Troubleshooting, "
-        "AI Model Research." + NL + NL + body)
-    try:
-        out = provider.send_message([{"role": "user", "content": prompt}])
-    except Exception:
-        log.exception("Title generation failed")
-        return None
-    title = (out or "").strip().strip(chr(34) + chr(39) + ".")
-    title = title.splitlines()[0].strip() if title else ""
-    # A model that explains itself instead of naming the chat is worse
-    # than the fallback, so anything sentence-length is discarded.
-    if not title or len(title) > 48 or len(title.split()) > 6:
-        log.info("Title discarded as unusable: %r", title[:60])
-        return None
-    return title
+    words = first.replace("\n", " ").split()
+    title = " ".join(words[:6]).strip(" -:;,.!?\"'")
+    if len(title) > 48:
+        title = title[:48].rsplit(" ", 1)[0]
+    return title[:1].upper() + title[1:] if title else None
 
 
 def _chat_takeaway(provider, title, messages):
@@ -746,16 +736,19 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
     # speech sooner, but every chunk boundary was a seam - gaps, cut
     # effect tails, audio elements racing over which was free - and the
     # result still dropped the ends of sentences. One clip has no seams.
+    is_raphael = getattr(settings, "VOICE_ENGINE", "").lower() == "raphael"
     streaming_speech = (
-        not getattr(settings, "VOICE_SINGLE_SHOT", True)
-        and voice is not None
-        and hasattr(voice, "speak_stream")
+        voice is not None
         and voice.current_sink is sink
-        and getattr(settings, "VOICE_ENGINE", "").lower() != "raphael"
+        and ((not getattr(settings, "VOICE_SINGLE_SHOT", True)
+              and hasattr(voice, "speak_stream") and not is_raphael)
+             or is_raphael)
     )
     text_q: "queue.Queue" = queue.Queue()
     speech_error = []
     speaker = None
+    raphael_stream = None
+    background_speech = False
 
     def speak_worker():
         try:
@@ -765,16 +758,25 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
 
     def end_stream():
         """Idempotent: closes the text stream and waits for speech to drain."""
+        if raphael_stream is not None:
+            raphael_stream.put(None)
+            return
         if speaker is not None:
             text_q.put(None)
             speaker.join(timeout=180)
 
     try:
         if streaming_speech:
-            speaker = threading.Thread(
-                target=_log_exceptions(speak_worker, "speech playback"),
-                daemon=True)
-            speaker.start()
+            if is_raphael:
+                raphael_stream = queue.Queue()
+                speaker = _start_raphael_stream(
+                    voice, iter(raphael_stream.get, None), sink,
+                    websocket, loop)
+            else:
+                speaker = threading.Thread(
+                    target=_log_exceptions(speak_worker, "speech playback"),
+                    daemon=True)
+                speaker.start()
         reply_chunks = []
         used_tools = []
         _tools_ok = getattr(type(engine.provider), "supports_tools", None)
@@ -850,14 +852,20 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
             reply_chunks.append(reply)
             send({"type": "reply_chunk", "text": reply})
             if speaker is not None:
-                text_q.put(reply)
+                if raphael_stream is not None:
+                    raphael_stream.put(reply)
+                else:
+                    text_q.put(reply)
         else:
           for chunk in engine.send_streaming(text):
               timer.first_token()
               reply_chunks.append(chunk)
               send({"type": "reply_chunk", "text": chunk})
               if speaker is not None:
-                  text_q.put(chunk)
+                  if raphael_stream is not None:
+                      raphael_stream.put(chunk)
+                  else:
+                      text_q.put(chunk)
         timer.text_done()
         # Guardrails run HERE: the full reply exists, but nothing has been
         # displayed or spoken yet. With captionFollowsSpeech the HUD holds
@@ -908,6 +916,13 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
         return
 
     try:
+        if raphael_stream is not None:
+            # The Raphael worker owns speaking_done and drains independently;
+            # chat completion must not wait for Japanese TTS or RVC.
+            background_speech = True
+            raphael_stream.put(None)
+            timer.finish()
+            return
         if speaker is not None:
             end_stream()
             if speech_error:
@@ -921,13 +936,12 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
                 "sending audio down the wrong/closed socket.",
                 text,
             )
-        elif getattr(settings, "VOICE_ENGINE", "").lower() == "raphael":
+        elif is_raphael:
             # Raphael runs asynchronously. It owns the speaking_done signal;
             # do NOT let this handler emit an early speaking_done in finally,
             # otherwise the HUD thinks audio is finished before RVC starts.
-            _speak_raphael_background(
-                voice, spoken_text, sink, websocket, loop
-            )
+            background_speech = True
+            _speak_raphael_background(voice, spoken_text, sink, websocket, loop)
             timer.finish()
             return
         else:
@@ -954,10 +968,47 @@ def _handle_chat(text, engine, voice, sink, websocket, loop,
         log.warning("Connection closed while sending audio for reply to %r", text)
     finally:
         timer.finish()
+        if not background_speech:
+            try:
+                send({"type": "speaking_done"})
+            except websockets.exceptions.ConnectionClosed:
+                pass
+
+
+def _start_raphael_stream(voice, deltas, sink, websocket, loop):
+    """Translate and synthesize complete sentences while the reply streams."""
+    def run():
         try:
-            send({"type": "speaking_done"})
-        except websockets.exceptions.ConnectionClosed:
-            pass
+            import re
+            pending = ""
+            for delta in deltas:
+                pending += delta
+                parts = re.split(r"(?<=[.!?。！？])\s+", pending)
+                pending = parts.pop()
+                for sentence in parts:
+                    sentence = sentence.strip()
+                    if sentence and voice.current_sink is sink:
+                        spoken = _translate_for_raphael(sentence)
+                        if spoken and voice.current_sink is sink:
+                            voice.speak(spoken)
+            if pending.strip() and voice.current_sink is sink:
+                spoken = _translate_for_raphael(pending.strip())
+                if spoken and voice.current_sink is sink:
+                    voice.speak(spoken)
+        except Exception:
+            log.exception("Streaming Raphael failed")
+        finally:
+            try:
+                asyncio.run_coroutine_threadsafe(
+                    websocket.send(json.dumps({"type": "speaking_done"})), loop)
+            except Exception:
+                pass
+
+    thread = threading.Thread(
+        target=_log_exceptions(run, "streaming Raphael"),
+        name="great-sage-raphael-stream", daemon=True)
+    thread.start()
+    return thread
 
 
 def _speak_raphael_background(voice, text, sink, websocket, loop):
